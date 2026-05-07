@@ -44,8 +44,8 @@
   .causas-table-header { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: var(--bg); border-bottom: 1px solid var(--border); }
   .causas-table-header span { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-hint); }
   .causas-filter { font-family: var(--font); font-size: 12px; padding: 4px 8px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--text); width: 160px; }
-  .causas-list { max-height: 220px; overflow-y: auto; }
-  .causa-row { display: grid; grid-template-columns: 100px 1fr 100px; gap: 10px; padding: 9px 12px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.12s; align-items: center; }
+  .causas-list { max-height: 320px; overflow-y: auto; }
+  .causa-row { display: grid; grid-template-columns: 100px 1fr 100px; gap: 10px; padding: 5px 12px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.12s; align-items: center; }
   .causa-row:last-child { border-bottom: none; }
   .causa-row:hover { background: var(--purple-light); }
   .causa-row.selected { background: var(--purple-light); border-left: 3px solid var(--purple); }
@@ -89,7 +89,7 @@
 
     <!-- BUSCAR -->
     <div class="search-row">
-      <input type="text" id="buscar" placeholder="Buscar por Nro. de causa..." oninput="filtrarTabla()">
+      <input type="text" id="buscar" placeholder="Buscar por Nro. de causa o carátula..." oninput="filtrarTabla()">
       <button class="btn-search" id="btn-buscar" onclick="buscarManual()">Buscar</button>
     </div>
 
@@ -170,22 +170,41 @@ function renderTabla(causas) {
     list.innerHTML = '<div class="causas-empty">No se encontraron causas.</div>';
     return;
   }
-  list.innerHTML = causas.map(c => `
-    <div class="causa-row" onclick="seleccionarCausa('${c.NroCausa}', '${(String(c.Caratula||'')).replace(/'/g,"\\'")}', '${c.DeptoJudicial||''}', '${c.Materia||''}', '${c.Defensoria||''}', '${c.EtapaProceso||'Instancia'}')">
+  list.innerHTML = causas.map((c,idx) => `
+    <div class="causa-row" onclick="seleccionarCausaObj(${idx})">
       <div class="nro">${c.NroCausa}</div>
-      <div class="caratula" title="${c.Caratula||''}">${c.Caratula||'—'}</div>
+      <div class="caratula" title="${String(c.Caratula||'')}">${String(c.Caratula||'—')}</div>
       <div class="estado ${estadoClass(c.EtapaProceso)}">${c.EtapaProceso||'Instancia'}</div>
     </div>
   `).join('');
+  window._causasFiltradas = causas;
 }
 
 function filtrarTabla() {
   const q = document.getElementById('buscar').value.toLowerCase();
   const filtradas = todasLasCausas.filter(c =>
-    (c.NroCausa||'').toLowerCase().includes(q) ||
-    (c.Caratula||'').toLowerCase().includes(q)
+    String(c.NroCausa||'').toLowerCase().includes(q) ||
+    String(c.Caratula||'').toLowerCase().includes(q)
   );
   renderTabla(filtradas);
+}
+
+function seleccionarCausaObj(idx) {
+  const c = window._causasFiltradas[idx];
+  if (!c) return;
+  document.getElementById('NroCausa').value = c.NroCausa;
+  document.getElementById('fc-caratula').textContent = String(c.Caratula || c.NroCausa);
+  document.getElementById('fc-info').textContent = [c.DeptoJudicial, c.Materia, c.Defensoria, 'Etapa: ' + (c.EtapaProceso||'Instancia')].filter(Boolean).join(' · ');
+  document.getElementById('causa-encontrada').style.display = 'block';
+  document.getElementById('err').style.display = 'none';
+  document.querySelectorAll('.causa-row').forEach(r => r.classList.remove('selected'));
+  document.querySelectorAll('.causa-row')[idx].classList.add('selected');
+  // Pre-completar campos si ya tiene datos de casación
+  if (c.NroCausaCasacion) document.getElementById('NroCausaCasacion').value = c.NroCausaCasacion;
+  if (c.SalaTCP) document.getElementById('SalaTCP').value = c.SalaTCP;
+  if (c.ResponsableTCP) document.getElementById('ResponsableTCP').value = c.ResponsableTCP;
+  if (c.TipoSentenciaCasacion) document.getElementById('TipoSentenciaCasacion').value = c.TipoSentenciaCasacion;
+  if (c.SentenciaCasacion) document.getElementById('SentenciaCasacion').value = c.SentenciaCasacion;
 }
 
 function seleccionarCausa(nro, caratula, depto, materia, defensoria, etapa) {
@@ -194,8 +213,6 @@ function seleccionarCausa(nro, caratula, depto, materia, defensoria, etapa) {
   document.getElementById('fc-info').textContent = [depto, materia, defensoria, 'Etapa: ' + etapa].filter(Boolean).join(' · ');
   document.getElementById('causa-encontrada').style.display = 'block';
   document.getElementById('err').style.display = 'none';
-  document.querySelectorAll('.causa-row').forEach(r => r.classList.remove('selected'));
-  event.currentTarget.classList.add('selected');
 }
 
 async function cargarCausas() {
