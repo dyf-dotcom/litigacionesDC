@@ -252,13 +252,13 @@ async function guardar() {
       document.getElementById('causa-encontrada').style.display = 'none';
       document.getElementById('NroCausa').value = '';
       document.getElementById('buscar').value = '';
-      cargarCausas();
+      window.addEventListener("load", cargarCausas);
     } else { showAlert('error', 'Error: ' + (data.error || 'Error desconocido')); }
   } catch(e) { showAlert('error', 'Error de conexión: ' + e.message); }
   btn.disabled = false; btn.textContent = 'Registrar casación';
 }
 
-cargarCausas();
+window.addEventListener("load", cargarCausas);
 </script>
 </body>
 </html>
