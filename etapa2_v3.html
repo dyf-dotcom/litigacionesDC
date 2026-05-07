@@ -171,7 +171,7 @@ function renderTabla(causas) {
     return;
   }
   list.innerHTML = causas.map(c => `
-    <div class="causa-row" onclick="seleccionarCausa('${c.NroCausa}', '${(c.Caratula||'').replace(/'/g,"\\'")}', '${c.DeptoJudicial||''}', '${c.Materia||''}', '${c.Defensoria||''}', '${c.EtapaProceso||'Instancia'}')">
+    <div class="causa-row" onclick="seleccionarCausa('${c.NroCausa}', '${(String(c.Caratula||'')).replace(/'/g,"\\'")}', '${c.DeptoJudicial||''}', '${c.Materia||''}', '${c.Defensoria||''}', '${c.EtapaProceso||'Instancia'}')">
       <div class="nro">${c.NroCausa}</div>
       <div class="caratula" title="${c.Caratula||''}">${c.Caratula||'—'}</div>
       <div class="estado ${estadoClass(c.EtapaProceso)}">${c.EtapaProceso||'Instancia'}</div>
