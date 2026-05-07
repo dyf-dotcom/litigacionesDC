@@ -200,8 +200,9 @@ function seleccionarCausa(nro, caratula, depto, materia, defensoria, etapa) {
 
 async function cargarCausas() {
   try {
-    const res = await fetch(`${API}?action=listar`);
-    const data = await res.json();
+    const res = await fetch(`${API}?action=listar`, { redirect: 'follow' });
+    const text = await res.text();
+    const data = JSON.parse(text);
     if (data.ok && data.causas) {
       todasLasCausas = data.causas;
       renderTabla(todasLasCausas);
@@ -209,7 +210,8 @@ async function cargarCausas() {
       document.getElementById('causas-list').innerHTML = '<div class="causas-empty">No se pudieron cargar las causas.</div>';
     }
   } catch(e) {
-    document.getElementById('causas-list').innerHTML = '<div class="causas-empty">Error al conectar con el servidor.</div>';
+    console.error('Error cargarCausas:', e);
+    document.getElementById('causas-list').innerHTML = '<div class="causas-empty">Error: ' + e.message + '</div>';
   }
 }
 
