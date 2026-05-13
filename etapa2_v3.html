@@ -148,6 +148,7 @@
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbzjHfYffrx41ddmPv75NDxe8g4xB2MZ4U6KWJuVFkIPwgXsbGTN9IfyqygFedLjX3xgGA/exec';
 let todasLasCausas = [];
+window._causasFiltradas = [];
 
 function val(id) { return document.getElementById(id).value.trim(); }
 function showAlert(type, msg) {
@@ -182,11 +183,11 @@ function renderTabla(causas) {
 
 function filtrarTabla() {
   const q = document.getElementById('buscar').value.toLowerCase();
-  const filtradas = todasLasCausas.filter(c =>
+  window._causasFiltradas = todasLasCausas.filter(c =>
     String(c.NroCausa||'').toLowerCase().includes(q) ||
     String(c.Caratula||'').toLowerCase().includes(q)
   );
-  renderTabla(filtradas);
+  renderTabla(window._causasFiltradas);
 }
 
 function seleccionarCausaObj(idx) {
@@ -222,6 +223,7 @@ async function cargarCausas() {
     const data = JSON.parse(text);
     if (data.ok && data.causas) {
       todasLasCausas = data.causas;
+      window._causasFiltradas = data.causas;
       renderTabla(todasLasCausas);
     } else {
       document.getElementById('causas-list').innerHTML = '<div class="causas-empty">No se pudieron cargar las causas.</div>';
