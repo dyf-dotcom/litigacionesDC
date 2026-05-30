@@ -84,6 +84,43 @@
 
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbzjHfYffrx41ddmPv75NDxe8g4xB2MZ4U6KWJuVFkIPwgXsbGTN9IfyqygFedLjX3xgGA/exec';
+
+async function cargarListas() {
+  try {
+    const res = await fetch(`${API}?action=listas`, { redirect: 'follow' });
+    const text = await res.text();
+    const data = JSON.parse(text);
+    if (!data.ok) return;
+    const listas = data.listas;
+    // Llenar cada select con su lista correspondiente
+    const mapa = {
+      'Materia': 'Materia',
+      'Delito': 'Delito',
+      'TipoCoercion': 'TipoCoercion',
+      'CamaraApelacion': 'CamaraApelacion',
+      'SalaTCP': 'SalaTCP',
+      'ResponsableTCP': 'ResponsableTCP',
+      'TipoSentenciaCasacion': 'TipoSentenciaCasacion',
+      'ResultadoFinal': 'ResultadoFinal'
+    };
+    Object.keys(mapa).forEach(function(campo) {
+      const el = document.getElementById(mapa[campo]);
+      if (!el || !listas[campo]) return;
+      const valActual = el.value;
+      el.innerHTML = '<option value="">Seleccionar...</option>';
+      listas[campo].forEach(function(op) {
+        const opt = document.createElement('option');
+        opt.value = op;
+        opt.textContent = op;
+        el.appendChild(opt);
+      });
+      if (valActual) el.value = valActual;
+    });
+  } catch(e) {
+    console.error('Error cargando listas:', e);
+  }
+}
+
 let todasLasCausas = [];
 let causasFiltradas = [];
 
@@ -143,7 +180,7 @@ async function cargarCausas() {
   }
 }
 
-window.addEventListener('load', cargarCausas);
+window.addEventListener('load', async function() { await cargarListas(); cargarCausas(); });
 </script>
 </body>
 </html>
