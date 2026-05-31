@@ -1,0 +1,14 @@
+# Windows
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Temporales
+*.tmp
+*.bak
+*.zip
+
+# Carpetas locales que no van al repo
+Pruebas/
+_archivo/
+BKP/
