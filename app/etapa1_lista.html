@@ -85,13 +85,7 @@
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbzjHfYffrx41ddmPv75NDxe8g4xB2MZ4U6KWJuVFkIPwgXsbGTN9IfyqygFedLjX3xgGA/exec';
 
-async function cargarListas() {
-  try {
-    const res = await fetch(`${API}?action=listas`, { redirect: 'follow' });
-    const text = await res.text();
-    const data = JSON.parse(text);
-    if (!data.ok) return;
-    const listas = data.listas;
+function poblarSelects(listas) {
     // Llenar cada select con su lista correspondiente
     const mapa = {
       'Materia': 'Materia',
@@ -116,6 +110,30 @@ async function cargarListas() {
       });
       if (valActual) el.value = valActual;
     });
+}
+
+async function cargarListas(forzar) {
+  try {
+    // Cache en localStorage por 24 horas
+    const CACHE_KEY = 'dcl_listas';
+    const CACHE_TTL = 24 * 60 * 60 * 1000;
+    if (!forzar) {
+      const cached = localStorage.getItem(CACHE_KEY);
+      if (cached) {
+        const { ts, listas: listasCache } = JSON.parse(cached);
+        if (Date.now() - ts < CACHE_TTL) {
+          poblarSelects(listasCache);
+          return;
+        }
+      }
+    }
+    const res = await fetch(`${API}?action=listas`, { redirect: 'follow' });
+    const text = await res.text();
+    const data = JSON.parse(text);
+    if (!data.ok) return;
+    const listas = data.listas;
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), listas }));
+    poblarSelects(listas);
   } catch(e) {
     console.error('Error cargando listas:', e);
   }

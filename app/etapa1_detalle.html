@@ -42,6 +42,8 @@
   .btn-primary { padding: 9px 20px; font-family: var(--font); font-size: 13px; font-weight: 500; border-radius: var(--radius); cursor: pointer; border: none; background: var(--blue); color: white; transition: background 0.15s; }
   .btn-primary:hover { background: #153f70; }
   .btn-primary:disabled { background: #9eb8d4; cursor: not-allowed; }
+  .btn-danger { padding: 9px 16px; font-family: var(--font); font-size: 13px; font-weight: 500; border-radius: var(--radius); cursor: pointer; border: 1px solid #e4a0a0; background: transparent; color: var(--danger); transition: background 0.15s; }
+  .btn-danger:hover { background: var(--danger-light); }
   .alert { display: none; padding: 10px 14px; border-radius: var(--radius); font-size: 13px; margin-top: 1rem; border: 1px solid; }
   .alert-success { background: var(--green-light); border-color: #7ec4a8; color: var(--green); }
   .alert-error { background: var(--danger-light); border-color: #e4a0a0; color: var(--danger); }
@@ -139,20 +141,17 @@
 
   <div class="card-footer">
     <span class="footer-status">EtapaProceso → <strong>Instancia</strong></span>
-    <button class="btn-primary" id="btn" onclick="guardar()">Registrar causa</button>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <button class="btn-danger" id="btn-borrar" style="display:none;" onclick="borrar()">Eliminar causa</button>
+      <button class="btn-primary" id="btn" onclick="guardar()">Registrar causa</button>
+    </div>
   </div>
 </div>
 
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbzjHfYffrx41ddmPv75NDxe8g4xB2MZ4U6KWJuVFkIPwgXsbGTN9IfyqygFedLjX3xgGA/exec';
 
-async function cargarListas() {
-  try {
-    const res = await fetch(`${API}?action=listas`, { redirect: 'follow' });
-    const text = await res.text();
-    const data = JSON.parse(text);
-    if (!data.ok) return;
-    const listas = data.listas;
+function poblarSelects(listas) {
     // Llenar cada select con su lista correspondiente
     const mapa = {
       'Materia': 'Materia',
@@ -177,6 +176,30 @@ async function cargarListas() {
       });
       if (valActual) el.value = valActual;
     });
+}
+
+async function cargarListas(forzar) {
+  try {
+    // Cache en localStorage por 24 horas
+    const CACHE_KEY = 'dcl_listas';
+    const CACHE_TTL = 24 * 60 * 60 * 1000;
+    if (!forzar) {
+      const cached = localStorage.getItem(CACHE_KEY);
+      if (cached) {
+        const { ts, listas: listasCache } = JSON.parse(cached);
+        if (Date.now() - ts < CACHE_TTL) {
+          poblarSelects(listasCache);
+          return;
+        }
+      }
+    }
+    const res = await fetch(`${API}?action=listas`, { redirect: 'follow' });
+    const text = await res.text();
+    const data = JSON.parse(text);
+    if (!data.ok) return;
+    const listas = data.listas;
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), listas }));
+    poblarSelects(listas);
   } catch(e) {
     console.error('Error cargando listas:', e);
   }
@@ -212,6 +235,7 @@ async function cargarCausa(nro) {
     document.getElementById('header-titulo').textContent = 'Causa Nro. ' + c.NroCausa;
     document.getElementById('header-desc').textContent = String(c.Caratula || '');
     document.getElementById('btn').textContent = 'Guardar cambios';
+    document.getElementById('btn-borrar').style.display = 'inline-block';
     setField('NroCausa', c.NroCausa);
     setField('Caratula', c.Caratula);
     setField('Defensoria', c.Defensoria);
@@ -267,6 +291,27 @@ async function guardar() {
   }
   btn.disabled = false;
   btn.textContent = modoEdicion ? 'Guardar cambios' : 'Registrar causa';
+}
+
+async function borrar() {
+  if (!confirm('¿Confirmar eliminación de la causa? No aparecerá más en la lista.')) return;
+  const nro = val('NroCausa');
+  const btn = document.getElementById('btn-borrar');
+  btn.disabled = true; btn.textContent = 'Eliminando...';
+  try {
+    const res = await fetch(`${API}?action=borrarCausa&NroCausa=${encodeURIComponent(nro)}`, { redirect: 'follow' });
+    const data = JSON.parse(await res.text());
+    if (data.ok) {
+      showAlert('success', 'Causa eliminada correctamente.');
+      setTimeout(() => { window.location.href = 'etapa1_lista.html' + (DEPTO ? '?depto=' + encodeURIComponent(DEPTO) : ''); }, 1500);
+    } else {
+      showAlert('error', data.error || 'Error al eliminar.');
+      btn.disabled = false; btn.textContent = 'Eliminar causa';
+    }
+  } catch(e) {
+    showAlert('error', 'Error de conexión: ' + e.message);
+    btn.disabled = false; btn.textContent = 'Eliminar causa';
+  }
 }
 
 window.addEventListener('load', async () => {

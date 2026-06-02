@@ -27,10 +27,11 @@ function handleRequest(e) {
 
     if (!sheet) return { ok: false, error: 'No se encontró la hoja "Causas"' };
 
-    if (action === 'listar')          return listarCausas(sheet);
-    if (action === 'buscar')          return buscarCausa(sheet, e.parameter.nro);
-    if (action === 'crearEtapa1')     return crearEtapa1(sheet, e.parameter);
+    if (action === 'listar')           return listarCausas(sheet);
+    if (action === 'buscar')           return buscarCausa(sheet, e.parameter.nro);
+    if (action === 'crearEtapa1')      return crearEtapa1(sheet, e.parameter);
     if (action === 'actualizarEtapa1') return actualizarEtapa1(sheet, e.parameter);
+    if (action === 'borrarCausa')      return borrarCausa(sheet, e.parameter.NroCausa);
     if (action === 'actualizarEtapa2') return actualizarEtapa2(sheet, e.parameter);
     if (action === 'actualizarEtapa3') return actualizarEtapa3(sheet, e.parameter);
 
@@ -109,6 +110,18 @@ function buscarCausa(sheet, nro) {
     }
   }
   return { ok: false, error: 'Causa no encontrada' };
+}
+
+function borrarCausa(sheet, nro) {
+  const found = buscarCausa(sheet, nro);
+  if (!found.ok) return found;
+
+  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  const idx = headers.indexOf('Borrado');
+  if (idx < 0) return { ok: false, error: 'Columna Borrado no encontrada' };
+
+  sheet.getRange(found.fila, idx + 1).setValue(true);
+  return { ok: true, mensaje: 'Causa eliminada correctamente' };
 }
 
 function crearEtapa1(sheet, p) {
