@@ -60,41 +60,24 @@
         <div class="card-desc" id="header-desc">Defensoría actuante — carga inicial de la causa</div>
       </div>
     </div>
-    <a class="btn-volver" href="etapa1_lista.html">← Volver</a>
+    <a class="btn-volver" id="btn-volver" href="etapa1_lista.html">← Volver</a>
   </div>
 
   <div class="card-body">
     <div class="section-title">Identificación de la causa</div>
     <div class="field-grid">
+      <div class="field"><label>IPP / PP</label><input type="text" id="IPPPP" placeholder="N° IPP o PP..."></div>
       <div class="field"><label>Nro. de causa *</label><input type="text" id="NroCausa" placeholder="Ej: 12345"></div>
-      <div class="field"><label>Carátula *</label><input type="text" id="Caratula" placeholder="Ej: López, Juan s/ robo"></div>
+    </div>
+    <div class="field-grid single">
+      <div class="field"><label>Carátula *</label><input type="text" id="Caratula" placeholder="Ej: López, Juan s/ robo — puede incluir varios imputados"></div>
     </div>
     <div class="field-grid">
-      <div class="field"><label>Defensoría *</label><input type="text" id="Defensoria" placeholder="Nombre de la defensoría"></div>
       <div class="field">
         <label>Departamento judicial *</label>
-        <select id="DeptoJudicial">
-          <option value="">Seleccionar...</option>
-          <option>La Plata</option><option>Lomas de Zamora</option><option>Morón</option>
-          <option>San Martín</option><option>Quilmes</option><option>Mar del Plata</option><option>Bahía Blanca</option>
-        </select>
+        <input type="text" id="DeptoJudicial" readonly style="background:#f4f3ef;cursor:default;">
       </div>
-    </div>
-    <div class="field-grid">
-      <div class="field">
-        <label>Cámara de apelación</label>
-        <select id="CamaraApelacion">
-          <option value="">Seleccionar...</option>
-          <option>Sala 1</option><option>Sala 2</option><option>Sala 3</option><option>Sala 4</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Materia a Litigar *</label>
-        <select id="Materia">
-          <option value="">Seleccionar...</option>
-          <option>COERCIÓN</option><option>CASACIÓN</option><option>EJECUCIÓN</option>
-        </select>
-      </div>
+      <div class="field"><label>Defensoría *</label><input type="text" id="Defensoria" placeholder="Nombre de la defensoría"></div>
     </div>
     <div class="field-grid">
       <div class="field">
@@ -108,7 +91,30 @@
         <label>Tipo de coerción</label>
         <select id="TipoCoercion">
           <option value="">Seleccionar...</option>
-          <option>Desproporcionada</option><option>Arbitraria</option><option>Ilegítima</option>
+          <option>Detenido</option><option>Prisión preventiva</option><option>Excarcelado</option><option>Morigerado</option><option>Cese</option><option>Libertad Condicional</option>
+        </select>
+      </div>
+    </div>
+    <div class="field-grid triple">
+      <div class="field">
+        <label>Cámara de apelación</label>
+        <select id="CamaraApelacion">
+          <option value="">Seleccionar...</option>
+          <option>Sala 1</option><option>Sala 2</option><option>Sala 3</option><option>Sala 4</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Materia a litigar *</label>
+        <select id="Materia">
+          <option value="">Seleccionar...</option>
+          <option>COERCIÓN</option><option>CASACIÓN</option><option>EJECUCIÓN</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Sentencia Cámara</label>
+        <select id="SentenciaCamara">
+          <option value="">Seleccionar...</option>
+          <option>Favorable</option><option>Desfavorable</option><option>Parcialmente favorable</option>
         </select>
       </div>
     </div>
@@ -122,6 +128,9 @@
     </div>
     <div class="field-grid single">
       <div class="field"><label>Agravio recurso de casación</label><textarea id="AgravioRecursoCasacion" placeholder="Describir los agravios..."></textarea></div>
+    </div>
+    <div class="field-grid single">
+      <div class="field"><label>Observaciones</label><textarea id="Observaciones" placeholder="Observaciones adicionales..."></textarea></div>
     </div>
 
     <div class="alert alert-success" id="ok"></div>
@@ -173,6 +182,7 @@ async function cargarListas() {
   }
 }
 
+const DEPTO = new URLSearchParams(window.location.search).get('depto') || '';
 let modoEdicion = false;
 
 function val(id) { return document.getElementById(id).value.trim(); }
@@ -213,6 +223,9 @@ async function cargarCausa(nro) {
     setField('MotivoRecursoApelacion', c.MotivoRecursoApelacion);
     setField('FundamentoSentencia', c.FundamentoSentencia);
     setField('AgravioRecursoCasacion', c.AgravioRecursoCasacion);
+    setField('IPPPP', c['IPP/PP'] || c.IPPPP);
+    setField('SentenciaCamara', c.SentenciaCamara);
+    setField('Observaciones', c.Observaciones);
   } catch(e) {
     showAlert('error', 'Error al cargar la causa: ' + e.message);
   }
@@ -234,7 +247,10 @@ async function guardar() {
     Delito: val('Delito'), TipoCoercion: val('TipoCoercion'),
     MotivoRecursoApelacion: val('MotivoRecursoApelacion'),
     FundamentoSentencia: val('FundamentoSentencia'),
-    AgravioRecursoCasacion: val('AgravioRecursoCasacion')
+    AgravioRecursoCasacion: val('AgravioRecursoCasacion'),
+    IPPPP: val('IPPPP'),
+    SentenciaCamara: val('SentenciaCamara'),
+    Observaciones: val('Observaciones')
   });
 
   try {
@@ -242,7 +258,7 @@ async function guardar() {
     const data = await res.json();
     if (data.ok) {
       showAlert('success', modoEdicion ? '✓ Causa actualizada correctamente.' : '✓ Causa registrada correctamente.');
-      setTimeout(() => window.location.href = 'etapa1_lista.html', 2000);
+      setTimeout(() => window.location.href = 'etapa1_lista.html' + (DEPTO ? '?depto=' + encodeURIComponent(DEPTO) : ''), 2000);
     } else {
       showAlert('error', 'Error: ' + (data.error || 'Error desconocido'));
     }
@@ -253,9 +269,29 @@ async function guardar() {
   btn.textContent = modoEdicion ? 'Guardar cambios' : 'Registrar causa';
 }
 
-window.addEventListener('load', () => {
+window.addEventListener('load', async () => {
   const params = new URLSearchParams(window.location.search);
   const nro = params.get('nro');
+  const depto = params.get('depto') || '';
+
+  // Setear botón volver con depto
+  const btnVolver = document.getElementById('btn-volver');
+  if (btnVolver && depto) btnVolver.href = 'etapa1_lista.html?depto=' + encodeURIComponent(depto);
+
+  // Precargar depto inmediatamente
+  if (depto) {
+    const el = document.getElementById('DeptoJudicial');
+    if (el) el.value = depto;
+  }
+
+  await cargarListas();
+
+  // Reafirmar por si cargarListas lo sobreescribió
+  if (depto) {
+    const el = document.getElementById('DeptoJudicial');
+    if (el) el.value = depto;
+  }
+
   if (nro) cargarCausa(nro);
 });
 </script>
