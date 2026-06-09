@@ -123,6 +123,7 @@ async function cargarListas() {
 
 let todasLasCausas = [];
 let causasFiltradas = [];
+let deptoActivo = ''; // Departamento fijado desde index.html (?depto=)
 
 function estadoClass(etapa) {
   if (!etapa) return 'estado-instancia';
@@ -151,10 +152,14 @@ function renderTabla(causas) {
 
 function filtrar() {
   const q = document.getElementById('buscar').value.toLowerCase();
-  const filtradas = todasLasCausas.filter(c =>
-    String(c.NroCausa||'').toLowerCase().includes(q) ||
-    String(c.Caratula||'').toLowerCase().includes(q)
-  );
+  const deptoQ = deptoActivo.toLowerCase().trim();
+  const filtradas = todasLasCausas.filter(c => {
+    // 1) Filtro por departamento (si se entró desde index.html)
+    if (deptoQ && String(c.DeptoJudicial||'').toLowerCase().trim() !== deptoQ) return false;
+    // 2) Búsqueda libre por Nro de causa o carátula
+    return String(c.NroCausa||'').toLowerCase().includes(q) ||
+           String(c.Caratula||'').toLowerCase().includes(q);
+  });
   renderTabla(filtradas);
 }
 
@@ -173,7 +178,7 @@ async function cargarCausas() {
     const data = JSON.parse(text);
     if (data.ok && data.causas) {
       todasLasCausas = data.causas;
-      renderTabla(todasLasCausas);
+      filtrar(); // aplica el filtro por departamento (y búsqueda) sobre los datos ya cargados
     } else {
       document.getElementById('causas-list').innerHTML = '<div class="causas-loading">No se pudieron cargar las causas.</div>';
     }
@@ -188,14 +193,11 @@ window.addEventListener('load', async function() {
   const params = new URLSearchParams(window.location.search);
   const depto = params.get('depto');
   if (depto) {
-    document.getElementById('buscar').value = depto;
+    deptoActivo = depto; // se filtra por DeptoJudicial, NO se ensucia el buscador
     document.title = 'Etapa 1 — ' + depto;
+    document.getElementById('buscar').placeholder = 'Buscar en ' + depto + ' por Nro. o carátula...';
   }
-  await cargarCausas();
-  // Filtrar DESPUÉS de que carguen las causas
-  if (depto) {
-    setTimeout(() => filtrar(), 100);
-  }
+  await cargarCausas(); // cargarCausas() ya llama a filtrar() cuando terminan de cargar los datos
 });
 </script>
 </body>
