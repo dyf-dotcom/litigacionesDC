@@ -271,7 +271,11 @@ async function guardar() {
   btn.textContent = modoEdicion ? 'Guardar cambios' : 'Registrar causa';
 }
 
-window.addEventListener('load', () => {
+window.addEventListener('load', async () => {
+  // 1) Cargar las listas desde la hoja "Listas" ANTES de nada,
+  //    así los <select> tienen los valores reales y se pueden preseleccionar.
+  await cargarListas();
+
   const params = new URLSearchParams(window.location.search);
   const nro = params.get('nro');
   if (nro) {
