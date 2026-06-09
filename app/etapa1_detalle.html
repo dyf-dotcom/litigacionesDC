@@ -75,8 +75,13 @@
         <label>Departamento judicial *</label>
         <select id="DeptoJudicial">
           <option value="">Seleccionar...</option>
-          <option>La Plata</option><option>Lomas de Zamora</option><option>Morón</option>
-          <option>San Martín</option><option>Quilmes</option><option>Mar del Plata</option><option>Bahía Blanca</option>
+          <option>Avellaneda - Lanús</option><option>Azul</option><option>Bahía Blanca</option>
+          <option>Dolores</option><option>Junín</option><option>La Matanza</option>
+          <option>La Plata</option><option>Lomas de Zamora</option><option>Mar del Plata</option>
+          <option>Mercedes</option><option>Moreno - Gral. Rodríguez</option><option>Morón</option>
+          <option>Necochea</option><option>Pergamino</option><option>Quilmes</option>
+          <option>San Isidro</option><option>San Martín</option><option>San Nicolás</option>
+          <option>Trenque Lauquen</option><option>Zárate - Campana</option>
         </select>
       </div>
     </div>
@@ -269,7 +274,20 @@ async function guardar() {
 window.addEventListener('load', () => {
   const params = new URLSearchParams(window.location.search);
   const nro = params.get('nro');
-  if (nro) cargarCausa(nro);
+  if (nro) {
+    cargarCausa(nro); // modo edición: trae los datos de la causa
+  } else {
+    // Causa nueva: preseleccionar el Departamento Judicial que viene del index (?depto=)
+    const depto = params.get('depto');
+    if (depto) {
+      const sel = document.getElementById('DeptoJudicial');
+      // Si por algún motivo el depto no está en la lista, lo agregamos para no perderlo
+      if (![...sel.options].some(o => o.value === depto)) {
+        sel.appendChild(new Option(depto, depto));
+      }
+      sel.value = depto;
+    }
+  }
 });
 </script>
 </body>
