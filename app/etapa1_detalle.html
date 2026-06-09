@@ -42,6 +42,8 @@
   .btn-primary { padding: 9px 20px; font-family: var(--font); font-size: 13px; font-weight: 500; border-radius: var(--radius); cursor: pointer; border: none; background: var(--blue); color: white; transition: background 0.15s; }
   .btn-primary:hover { background: #153f70; }
   .btn-primary:disabled { background: #9eb8d4; cursor: not-allowed; }
+  .btn-danger { padding: 9px 16px; font-family: var(--font); font-size: 13px; font-weight: 500; border-radius: var(--radius); cursor: pointer; border: 1px solid #e4a0a0; background: transparent; color: var(--danger); transition: background 0.15s; }
+  .btn-danger:hover { background: var(--danger-light); }
   .alert { display: none; padding: 10px 14px; border-radius: var(--radius); font-size: 13px; margin-top: 1rem; border: 1px solid; }
   .alert-success { background: var(--green-light); border-color: #7ec4a8; color: var(--green); }
   .alert-error { background: var(--danger-light); border-color: #e4a0a0; color: var(--danger); }
@@ -60,46 +62,24 @@
         <div class="card-desc" id="header-desc">Defensoría actuante — carga inicial de la causa</div>
       </div>
     </div>
-    <a class="btn-volver" href="etapa1_lista.html">← Volver</a>
+    <a class="btn-volver" id="btn-volver" href="etapa1_lista.html">← Volver</a>
   </div>
 
   <div class="card-body">
-    <div class="section-title">Identificación de la causa</div>
     <div class="field-grid">
-      <div class="field"><label>Nro. de causa *</label><input type="text" id="NroCausa" placeholder="Ej: 12345"></div>
-      <div class="field"><label>Carátula *</label><input type="text" id="Caratula" placeholder="Ej: López, Juan s/ robo"></div>
-    </div>
-    <div class="field-grid">
-      <div class="field"><label>Defensoría *</label><input type="text" id="Defensoria" placeholder="Nombre de la defensoría"></div>
       <div class="field">
         <label>Departamento judicial *</label>
-        <select id="DeptoJudicial">
-          <option value="">Seleccionar...</option>
-          <option>Avellaneda - Lanús</option><option>Azul</option><option>Bahía Blanca</option>
-          <option>Dolores</option><option>Junín</option><option>La Matanza</option>
-          <option>La Plata</option><option>Lomas de Zamora</option><option>Mar del Plata</option>
-          <option>Mercedes</option><option>Moreno - Gral. Rodríguez</option><option>Morón</option>
-          <option>Necochea</option><option>Pergamino</option><option>Quilmes</option>
-          <option>San Isidro</option><option>San Martín</option><option>San Nicolás</option>
-          <option>Trenque Lauquen</option><option>Zárate - Campana</option>
-        </select>
+        <input type="text" id="DeptoJudicial" readonly style="background:#f4f3ef;cursor:default;">
       </div>
+      <div class="field"><label>Defensoría *</label><input type="text" id="Defensoria" placeholder="Nº / Nombre"></div>
     </div>
+    <div class="section-title">Identificación de la causa</div>
     <div class="field-grid">
-      <div class="field">
-        <label>Cámara de apelación</label>
-        <select id="CamaraApelacion">
-          <option value="">Seleccionar...</option>
-          <option>Sala 1</option><option>Sala 2</option><option>Sala 3</option><option>Sala 4</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Materia a Litigar *</label>
-        <select id="Materia">
-          <option value="">Seleccionar...</option>
-          <option>COERCIÓN</option><option>CASACIÓN</option><option>EJECUCIÓN</option>
-        </select>
-      </div>
+      <div class="field"><label>IPP / PP *</label><input type="text" id="IPPPP" placeholder="N° IPP o PP..."></div>
+      <div class="field"><label>Nro. de causa *</label><input type="text" id="NroCausa" placeholder="Ej: 12345"></div>
+    </div>
+    <div class="field-grid single">
+      <div class="field"><label>Carátula *</label><textarea id="Caratula" placeholder="Ej: López, Juan s/ robo — puede incluir varios imputados"></textarea></div>
     </div>
     <div class="field-grid">
       <div class="field">
@@ -113,17 +93,36 @@
         <label>Tipo de coerción</label>
         <select id="TipoCoercion">
           <option value="">Seleccionar...</option>
-          <option>Desproporcionada</option><option>Arbitraria</option><option>Ilegítima</option>
+          <option>Detenido</option><option>Prisión preventiva</option><option>Excarcelado</option><option>Morigerado</option><option>Cese</option><option>Libertad Condicional</option>
+        </select>
+      </div>
+    </div>
+    <div class="field-grid triple">
+      <div class="field">
+        <label>Cámara de apelación</label>
+        <select id="CamaraApelacion">
+          <option value="">Seleccionar...</option>
+          <option>Sala 1</option><option>Sala 2</option><option>Sala 3</option><option>Sala 4</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Materia a litigar *</label>
+        <select id="Materia">
+          <option value="">Seleccionar...</option>
+          <option>COERCIÓN</option><option>CASACIÓN</option><option>EJECUCIÓN</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Sentencia Cámara</label>
+        <select id="SentenciaCamara">
+          <option value="">Seleccionar...</option>
+          <option>Favorable</option><option>Desfavorable</option><option>Parcialmente favorable</option>
         </select>
       </div>
     </div>
 
-    <div class="section-title">Fundamentos del recurso</div>
     <div class="field-grid single">
-      <div class="field"><label>Motivo del recurso de apelación *</label><textarea id="MotivoRecursoApelacion" placeholder="Describir los motivos del recurso de apelación..."></textarea></div>
-    </div>
-    <div class="field-grid single">
-      <div class="field"><label>Fundamento de la sentencia *</label><textarea id="FundamentoSentencia" placeholder="Describir los fundamentos de la sentencia..."></textarea></div>
+      <div class="field"><label>Fundamentos de la sentencia Cámara de Apelaciones *</label><textarea id="FundamentoSentencia" placeholder="Describir los fundamentos de la sentencia de la Cámara..."></textarea></div>
     </div>
     <div class="field-grid single">
       <div class="field">
@@ -135,8 +134,24 @@
         </select>
       </div>
     </div>
+    <div class="section-title">Fundamentos del recurso de casación</div>
     <div class="field-grid single">
-      <div class="field"><label>Agravio recurso de casación</label><textarea id="AgravioRecursoCasacion" placeholder="Describir los agravios..."></textarea></div>
+      <div class="field"><label>Agravio recurso de casación</label>
+        <select id="AgravioRecursoCasacion">
+          <option value="">Seleccionar...</option>
+          <option>Fines Convencionales</option>
+          <option>Peligros</option>
+          <option>Necesidad</option>
+          <option>Proporcionalidad</option>
+          <option>Plazo Razonable</option>
+          <option>Humanidad</option>
+          <option>Denegado Informe Negativo</option>
+          <option>Denegado Informe Positivo</option>
+        </select>
+      </div>
+    </div>
+    <div class="field-grid single">
+      <div class="field"><label>Observaciones</label><textarea id="Observaciones" placeholder="Observaciones adicionales..."></textarea></div>
     </div>
 
     <div class="alert alert-success" id="ok"></div>
@@ -145,20 +160,17 @@
 
   <div class="card-footer">
     <span class="footer-status">EtapaProceso → <strong>Instancia</strong></span>
-    <button class="btn-primary" id="btn" onclick="guardar()">Registrar causa</button>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <button class="btn-danger" id="btn-borrar" style="display:none;" onclick="borrar()">Eliminar causa</button>
+      <button class="btn-primary" id="btn" onclick="guardar()">Registrar causa</button>
+    </div>
   </div>
 </div>
 
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbzjHfYffrx41ddmPv75NDxe8g4xB2MZ4U6KWJuVFkIPwgXsbGTN9IfyqygFedLjX3xgGA/exec';
 
-async function cargarListas() {
-  try {
-    const res = await fetch(`${API}?action=listas`, { redirect: 'follow' });
-    const text = await res.text();
-    const data = JSON.parse(text);
-    if (!data.ok) return;
-    const listas = data.listas;
+function poblarSelects(listas) {
     // Llenar cada select con su lista correspondiente
     const mapa = {
       'Materia': 'Materia',
@@ -169,6 +181,7 @@ async function cargarListas() {
       'ResponsableTCP': 'ResponsableTCP',
       'TipoSentenciaCasacion': 'TipoSentenciaCasacion',
       'ResultadoFinal': 'ResultadoFinal',
+      'AgravioRecursoCasacion': 'AgravioRecursoCasacion',
       'MotivoApelación': 'MotivoApelación'
     };
     Object.keys(mapa).forEach(function(campo) {
@@ -184,11 +197,36 @@ async function cargarListas() {
       });
       if (valActual) el.value = valActual;
     });
+}
+
+async function cargarListas(forzar) {
+  try {
+    // Cache en localStorage por 24 horas
+    const CACHE_KEY = 'dcl_listas';
+    const CACHE_TTL = 24 * 60 * 60 * 1000;
+    if (!forzar) {
+      const cached = localStorage.getItem(CACHE_KEY);
+      if (cached) {
+        const { ts, listas: listasCache } = JSON.parse(cached);
+        if (Date.now() - ts < CACHE_TTL) {
+          poblarSelects(listasCache);
+          return;
+        }
+      }
+    }
+    const res = await fetch(`${API}?action=listas`, { redirect: 'follow' });
+    const text = await res.text();
+    const data = JSON.parse(text);
+    if (!data.ok) return;
+    const listas = data.listas;
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), listas }));
+    poblarSelects(listas);
   } catch(e) {
     console.error('Error cargando listas:', e);
   }
 }
 
+const DEPTO = new URLSearchParams(window.location.search).get('depto') || '';
 let modoEdicion = false;
 
 function val(id) { return document.getElementById(id).value.trim(); }
@@ -218,6 +256,7 @@ async function cargarCausa(nro) {
     document.getElementById('header-titulo').textContent = 'Causa Nro. ' + c.NroCausa;
     document.getElementById('header-desc').textContent = String(c.Caratula || '');
     document.getElementById('btn').textContent = 'Guardar cambios';
+    document.getElementById('btn-borrar').style.display = 'inline-block';
     setField('NroCausa', c.NroCausa);
     setField('Caratula', c.Caratula);
     setField('Defensoria', c.Defensoria);
@@ -226,17 +265,19 @@ async function cargarCausa(nro) {
     setField('Materia', c.Materia);
     setField('Delito', c.Delito);
     setField('TipoCoercion', c.TipoCoercion);
-    setField('MotivoRecursoApelacion', c.MotivoRecursoApelacion);
     setField('FundamentoSentencia', c.FundamentoSentencia);
-    setField('MotivoApelación', c['MotivoApelación']);
     setField('AgravioRecursoCasacion', c.AgravioRecursoCasacion);
+    setField('MotivoApelación', c['MotivoApelación']);
+    setField('IPPPP', c['IPP/PP'] || c.IPPPP);
+    setField('SentenciaCamara', c.SentenciaCamara);
+    setField('Observaciones', c.Observaciones);
   } catch(e) {
     showAlert('error', 'Error al cargar la causa: ' + e.message);
   }
 }
 
 async function guardar() {
-  if (!val('NroCausa') || !val('Caratula') || !val('Defensoria') || !val('DeptoJudicial') || !val('Materia') || !val('Delito') || !val('MotivoRecursoApelacion') || !val('FundamentoSentencia')) {
+  if (!val('IPPPP') || !val('NroCausa') || !val('Caratula') || !val('Defensoria') || !val('DeptoJudicial') || !val('Materia') || !val('Delito') || !val('FundamentoSentencia')) {
     showAlert('error', 'Completá todos los campos obligatorios (*).'); return;
   }
   const btn = document.getElementById('btn');
@@ -249,10 +290,12 @@ async function guardar() {
     Defensoria: val('Defensoria'), DeptoJudicial: val('DeptoJudicial'),
     CamaraApelacion: val('CamaraApelacion'), Materia: val('Materia'),
     Delito: val('Delito'), TipoCoercion: val('TipoCoercion'),
-    MotivoRecursoApelacion: val('MotivoRecursoApelacion'),
     FundamentoSentencia: val('FundamentoSentencia'),
-    MotivoApelación: val('MotivoApelación'),
-    AgravioRecursoCasacion: val('AgravioRecursoCasacion')
+    AgravioRecursoCasacion: val('AgravioRecursoCasacion'),
+    'MotivoApelación': val('MotivoApelación'),
+    IPPPP: val('IPPPP'),
+    SentenciaCamara: val('SentenciaCamara'),
+    Observaciones: val('Observaciones')
   });
 
   try {
@@ -260,7 +303,7 @@ async function guardar() {
     const data = await res.json();
     if (data.ok) {
       showAlert('success', modoEdicion ? '✓ Causa actualizada correctamente.' : '✓ Causa registrada correctamente.');
-      setTimeout(() => window.location.href = 'etapa1_lista.html', 2000);
+      setTimeout(() => window.location.href = 'etapa1_lista.html' + (DEPTO ? '?depto=' + encodeURIComponent(DEPTO) : ''), 2000);
     } else {
       showAlert('error', 'Error: ' + (data.error || 'Error desconocido'));
     }
@@ -271,27 +314,51 @@ async function guardar() {
   btn.textContent = modoEdicion ? 'Guardar cambios' : 'Registrar causa';
 }
 
-window.addEventListener('load', async () => {
-  // 1) Cargar las listas desde la hoja "Listas" ANTES de nada,
-  //    así los <select> tienen los valores reales y se pueden preseleccionar.
-  await cargarListas();
+async function borrar() {
+  if (!confirm('¿Confirmar eliminación de la causa? No aparecerá más en la lista.')) return;
+  const nro = val('NroCausa');
+  const btn = document.getElementById('btn-borrar');
+  btn.disabled = true; btn.textContent = 'Eliminando...';
+  try {
+    const res = await fetch(`${API}?action=borrarCausa&NroCausa=${encodeURIComponent(nro)}`, { redirect: 'follow' });
+    const data = JSON.parse(await res.text());
+    if (data.ok) {
+      showAlert('success', 'Causa eliminada correctamente.');
+      setTimeout(() => { window.location.href = 'etapa1_lista.html' + (DEPTO ? '?depto=' + encodeURIComponent(DEPTO) : ''); }, 1500);
+    } else {
+      showAlert('error', data.error || 'Error al eliminar.');
+      btn.disabled = false; btn.textContent = 'Eliminar causa';
+    }
+  } catch(e) {
+    showAlert('error', 'Error de conexión: ' + e.message);
+    btn.disabled = false; btn.textContent = 'Eliminar causa';
+  }
+}
 
+window.addEventListener('load', async () => {
   const params = new URLSearchParams(window.location.search);
   const nro = params.get('nro');
-  if (nro) {
-    cargarCausa(nro); // modo edición: trae los datos de la causa
-  } else {
-    // Causa nueva: preseleccionar el Departamento Judicial que viene del index (?depto=)
-    const depto = params.get('depto');
-    if (depto) {
-      const sel = document.getElementById('DeptoJudicial');
-      // Si por algún motivo el depto no está en la lista, lo agregamos para no perderlo
-      if (![...sel.options].some(o => o.value === depto)) {
-        sel.appendChild(new Option(depto, depto));
-      }
-      sel.value = depto;
-    }
+  const depto = params.get('depto') || '';
+
+  // Setear botón volver con depto
+  const btnVolver = document.getElementById('btn-volver');
+  if (btnVolver && depto) btnVolver.href = 'etapa1_lista.html?depto=' + encodeURIComponent(depto);
+
+  // Precargar depto inmediatamente
+  if (depto) {
+    const el = document.getElementById('DeptoJudicial');
+    if (el) el.value = depto;
   }
+
+  await cargarListas();
+
+  // Reafirmar por si cargarListas lo sobreescribió
+  if (depto) {
+    const el = document.getElementById('DeptoJudicial');
+    if (el) el.value = depto;
+  }
+
+  if (nro) cargarCausa(nro);
 });
 </script>
 </body>
