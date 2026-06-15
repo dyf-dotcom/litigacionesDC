@@ -75,7 +75,6 @@ function listarCausas(sheet) {
     if (data[i][idx('Borrado')]) continue; // ignorar filas marcadas como borradas
     causas.push({
       NroCausa:          data[i][idx('NroCausa')],
-      Caratula:          data[i][idx('Caratula')],
       EtapaProceso:      data[i][idx('EtapaProceso')] || 'Instancia',
       DeptoJudicial:     data[i][idx('DeptoJudicial')],
       Materia:           data[i][idx('Materia')],
@@ -130,30 +129,35 @@ function crearEtapa1(sheet, p) {
   const headers = data[0];
   const nroIdx = headers.indexOf('NroCausa');
   const deptoIdx = headers.indexOf('DeptoJudicial');
+  const idIdx = headers.indexOf('ID');
 
+  // Calcular próximo ID auto-incremental
+  var maxId = 0;
   for (var i = 1; i < data.length; i++) {
     if (String(data[i][nroIdx]) === String(p.NroCausa) &&
         String(data[i][deptoIdx]) === String(p.DeptoJudicial)) {
       return { ok: false, error: 'La causa ' + p.NroCausa + ' ya existe en ' + p.DeptoJudicial };
     }
+    var idVal = parseInt(data[i][idIdx]);
+    if (!isNaN(idVal) && idVal > maxId) maxId = idVal;
   }
 
   var row = new Array(headers.length).fill('');
 
   const map = {
-    'Marcatemporal':        new Date(),
+    'ID':                   maxId + 1,
     'DeptoJudicial':        p.DeptoJudicial,
     'Defensoria':           p.Defensoria,
     'CamaraApelacion':      p.CamaraApelacion,
     'IPP/PP':               p.IPPPP,
     'NroCausa':             p.NroCausa,
-    'Caratula':             p.Caratula,
     'Materia':              p.Materia,
     'Delito':               p.Delito,
     'TipoCoercion':         p.TipoCoercion,
+    'MotivoApelacion':      p.MotivoApelacion,
     'SentenciaCamara':      p.SentenciaCamara,
-    'MotivoRecursoApelacion': p.MotivoRecursoApelacion,
     'FundamentoSentencia':  p.FundamentoSentencia,
+    'MotivoRecursoApelacion': p.MotivoRecursoApelacion,
     'AgravioRecursoCasacion': p.AgravioRecursoCasacion,
     'Observaciones':        p.Observaciones,
     'EtapaProceso':         'Instancia'
@@ -175,7 +179,6 @@ function actualizarEtapa1(sheet, p) {
   const fila = found.fila;
 
   const campos = {
-    'Caratula':               p.Caratula,
     'Defensoria':             p.Defensoria,
     'DeptoJudicial':          p.DeptoJudicial,
     'CamaraApelacion':        p.CamaraApelacion,
@@ -183,9 +186,10 @@ function actualizarEtapa1(sheet, p) {
     'Materia':                p.Materia,
     'Delito':                 p.Delito,
     'TipoCoercion':           p.TipoCoercion,
+    'MotivoApelacion':        p.MotivoApelacion,
     'SentenciaCamara':        p.SentenciaCamara,
-    'MotivoRecursoApelacion': p.MotivoRecursoApelacion,
     'FundamentoSentencia':    p.FundamentoSentencia,
+    'MotivoRecursoApelacion': p.MotivoRecursoApelacion,
     'AgravioRecursoCasacion': p.AgravioRecursoCasacion,
     'Observaciones':          p.Observaciones
   };

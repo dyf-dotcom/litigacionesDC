@@ -78,9 +78,6 @@
       <div class="field"><label>IPP / PP *</label><input type="text" id="IPPPP" placeholder="N° IPP o PP..."></div>
       <div class="field"><label>Nro. de causa *</label><input type="text" id="NroCausa" placeholder="Ej: 12345"></div>
     </div>
-    <div class="field-grid single">
-      <div class="field"><label>Carátula *</label><textarea id="Caratula" placeholder="Ej: López, Juan s/ robo — puede incluir varios imputados"></textarea></div>
-    </div>
     <div class="field-grid">
       <div class="field">
         <label>Tipo de delito *</label>
@@ -94,6 +91,20 @@
         <select id="TipoCoercion">
           <option value="">Seleccionar...</option>
           <option>Detenido</option><option>Prisión preventiva</option><option>Excarcelado</option><option>Morigerado</option><option>Cese</option><option>Libertad Condicional</option>
+        </select>
+      </div>
+    </div>
+    <div class="field-grid">
+      <div class="field">
+        <label>Motivo de apelación</label>
+        <select id="MotivoApelacion">
+          <option value="">Seleccionar...</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Motivo recurso de apelación</label>
+        <select id="MotivoRecursoApelacion">
+          <option value="">Seleccionar...</option>
         </select>
       </div>
     </div>
@@ -124,30 +135,10 @@
     <div class="field-grid single">
       <div class="field"><label>Fundamentos de la sentencia Cámara de Apelaciones *</label><textarea id="FundamentoSentencia" placeholder="Describir los fundamentos de la sentencia de la Cámara..."></textarea></div>
     </div>
-    <div class="field-grid single">
-      <div class="field">
-        <label>Motivo de apelación</label>
-        <select id="MotivoApelación">
-          <option value="">Seleccionar...</option>
-          <option>Detenible</option>
-          <option>No Detenible</option>
-        </select>
-      </div>
-    </div>
     <div class="section-title">Fundamentos del recurso de casación</div>
     <div class="field-grid single">
       <div class="field"><label>Agravio recurso de casación</label>
-        <select id="AgravioRecursoCasacion">
-          <option value="">Seleccionar...</option>
-          <option>Fines Convencionales</option>
-          <option>Peligros</option>
-          <option>Necesidad</option>
-          <option>Proporcionalidad</option>
-          <option>Plazo Razonable</option>
-          <option>Humanidad</option>
-          <option>Denegado Informe Negativo</option>
-          <option>Denegado Informe Positivo</option>
-        </select>
+        <textarea id="AgravioRecursoCasacion" placeholder="Describir el agravio del recurso de casación..."></textarea>
       </div>
     </div>
     <div class="field-grid single">
@@ -181,8 +172,8 @@ function poblarSelects(listas) {
       'ResponsableTCP': 'ResponsableTCP',
       'TipoSentenciaCasacion': 'TipoSentenciaCasacion',
       'ResultadoFinal': 'ResultadoFinal',
-      'AgravioRecursoCasacion': 'AgravioRecursoCasacion',
-      'MotivoApelación': 'MotivoApelación'
+      'MotivoApelacion': 'MotivoApelacion',
+      'MotivoRecursoApelacion': 'MotivoApelacion'
     };
     Object.keys(mapa).forEach(function(campo) {
       const el = document.getElementById(mapa[campo]);
@@ -254,11 +245,9 @@ async function cargarCausa(nro) {
     const c = data.data;
     modoEdicion = true;
     document.getElementById('header-titulo').textContent = 'Causa Nro. ' + c.NroCausa;
-    document.getElementById('header-desc').textContent = String(c.Caratula || '');
     document.getElementById('btn').textContent = 'Guardar cambios';
     document.getElementById('btn-borrar').style.display = 'inline-block';
     setField('NroCausa', c.NroCausa);
-    setField('Caratula', c.Caratula);
     setField('Defensoria', c.Defensoria);
     setField('DeptoJudicial', c.DeptoJudicial);
     setField('CamaraApelacion', c.CamaraApelacion);
@@ -267,7 +256,8 @@ async function cargarCausa(nro) {
     setField('TipoCoercion', c.TipoCoercion);
     setField('FundamentoSentencia', c.FundamentoSentencia);
     setField('AgravioRecursoCasacion', c.AgravioRecursoCasacion);
-    setField('MotivoApelación', c['MotivoApelación']);
+    setField('MotivoApelacion', c['MotivoApelacion']);
+    setField('MotivoRecursoApelacion', c['MotivoRecursoApelacion']);
     setField('IPPPP', c['IPP/PP'] || c.IPPPP);
     setField('SentenciaCamara', c.SentenciaCamara);
     setField('Observaciones', c.Observaciones);
@@ -277,7 +267,7 @@ async function cargarCausa(nro) {
 }
 
 async function guardar() {
-  if (!val('IPPPP') || !val('NroCausa') || !val('Caratula') || !val('Defensoria') || !val('DeptoJudicial') || !val('Materia') || !val('Delito') || !val('FundamentoSentencia')) {
+  if (!val('IPPPP') || !val('NroCausa') || !val('Defensoria') || !val('DeptoJudicial') || !val('Materia') || !val('Delito') || !val('FundamentoSentencia')) {
     showAlert('error', 'Completá todos los campos obligatorios (*).'); return;
   }
   const btn = document.getElementById('btn');
@@ -286,15 +276,16 @@ async function guardar() {
   const accion = modoEdicion ? 'actualizarEtapa1' : 'crearEtapa1';
   const params = new URLSearchParams({
     action: accion,
-    NroCausa: val('NroCausa'), Caratula: val('Caratula'),
+    NroCausa: val('NroCausa'),
     Defensoria: val('Defensoria'), DeptoJudicial: val('DeptoJudicial'),
     CamaraApelacion: val('CamaraApelacion'), Materia: val('Materia'),
     Delito: val('Delito'), TipoCoercion: val('TipoCoercion'),
+    MotivoApelacion: val('MotivoApelacion'),
+    MotivoRecursoApelacion: val('MotivoRecursoApelacion'),
+    SentenciaCamara: val('SentenciaCamara'),
     FundamentoSentencia: val('FundamentoSentencia'),
     AgravioRecursoCasacion: val('AgravioRecursoCasacion'),
-    'MotivoApelación': val('MotivoApelación'),
     IPPPP: val('IPPPP'),
-    SentenciaCamara: val('SentenciaCamara'),
     Observaciones: val('Observaciones')
   });
 
