@@ -178,11 +178,11 @@ function poblarSelects(listas) {
       'MotivoRecursoApelacion': 'MotivoApelacion'
     };
     Object.keys(mapa).forEach(function(campo) {
-      const el = document.getElementById(mapa[campo]);
-      if (!el || !listas[campo]) return;
+      const el = document.getElementById(campo);
+      if (!el || !listas[mapa[campo]]) return;
       const valActual = el.value;
       el.innerHTML = '<option value="">Seleccionar...</option>';
-      listas[campo].forEach(function(op) {
+      listas[mapa[campo]].forEach(function(op) {
         const opt = document.createElement('option');
         opt.value = op;
         opt.textContent = op;
