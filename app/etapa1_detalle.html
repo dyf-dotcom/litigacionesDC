@@ -296,6 +296,7 @@ async function guardar() {
     const data = await res.json();
     if (data.ok) {
       showAlert('success', modoEdicion ? '✓ Causa actualizada correctamente.' : '✓ Causa registrada correctamente.');
+      sessionStorage.removeItem('causas_cache');
       setTimeout(() => window.location.href = 'etapa1_lista.html' + (DEPTO ? '?depto=' + encodeURIComponent(DEPTO) : ''), 2000);
     } else {
       showAlert('error', 'Error: ' + (data.error || 'Error desconocido'));
@@ -317,6 +318,7 @@ async function borrar() {
     const data = JSON.parse(await res.text());
     if (data.ok) {
       showAlert('success', 'Causa eliminada correctamente.');
+      sessionStorage.removeItem('causas_cache');
       setTimeout(() => { window.location.href = 'etapa1_lista.html' + (DEPTO ? '?depto=' + encodeURIComponent(DEPTO) : ''); }, 1500);
     } else {
       showAlert('error', data.error || 'Error al eliminar.');

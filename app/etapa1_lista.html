@@ -169,12 +169,22 @@ function abrirDetalle(idx) {
 
 async function cargarCausas() {
   try {
+    // Caché en sessionStorage: evita re-fetch al volver del detalle
+    const cacheKey = 'causas_cache';
+    const cached = sessionStorage.getItem(cacheKey);
+    if (cached) {
+      todasLasCausas = JSON.parse(cached);
+      filtrar();
+      return;
+    }
+
     const res = await fetch(`${API}?action=listar`, { redirect: 'follow' });
     const text = await res.text();
     const data = JSON.parse(text);
     if (data.ok && data.causas) {
       todasLasCausas = data.causas;
-      filtrar(); // aplica el filtro por departamento (y búsqueda) sobre los datos ya cargados
+      sessionStorage.setItem(cacheKey, JSON.stringify(data.causas));
+      filtrar();
     } else {
       document.getElementById('causas-list').innerHTML = '<div class="causas-loading">No se pudieron cargar las causas.</div>';
     }

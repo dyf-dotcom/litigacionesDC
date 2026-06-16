@@ -64,6 +64,15 @@ function listarListas(ss) {
 }
 
 function listarCausas(sheet) {
+  const cache = CacheService.getScriptCache();
+  const cacheKey = 'causas_all';
+
+  // Intentar desde caché (válido por 30 minutos)
+  const cached = cache.get(cacheKey);
+  if (cached) {
+    return JSON.parse(cached);
+  }
+
   const data = sheet.getDataRange().getValues();
   const headers = data[0];
 
@@ -86,7 +95,21 @@ function listarCausas(sheet) {
       SentenciaCasacion: data[i][idx('SentenciaCasación')] || ''
     });
   }
-  return { ok: true, causas: causas };
+
+  const resultado = { ok: true, causas: causas };
+
+  // Guardar en caché por 30 minutos
+  try {
+    cache.put(cacheKey, JSON.stringify(resultado), 1800);
+  } catch(e) {
+    // Ignorar si el payload supera el límite de caché (100KB)
+  }
+
+  return resultado;
+}
+
+function invalidarCacheCausas() {
+  CacheService.getScriptCache().remove('causas_all');
 }
 
 // Devuelve todos los campos de una fila como objeto string
@@ -120,6 +143,7 @@ function borrarCausa(sheet, nro) {
   if (idx < 0) return { ok: false, error: 'Columna Borrado no encontrada' };
 
   sheet.getRange(found.fila, idx + 1).setValue(true);
+  invalidarCacheCausas();
   return { ok: true, mensaje: 'Causa eliminada correctamente' };
 }
 
@@ -168,6 +192,7 @@ function crearEtapa1(sheet, p) {
   });
 
   sheet.appendRow(row);
+  invalidarCacheCausas();
   return { ok: true, mensaje: 'Causa registrada correctamente' };
 }
 
@@ -201,6 +226,7 @@ function actualizarEtapa1(sheet, p) {
     }
   });
 
+  invalidarCacheCausas();
   return { ok: true, mensaje: 'Causa actualizada correctamente' };
 }
 
