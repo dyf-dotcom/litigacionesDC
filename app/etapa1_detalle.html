@@ -33,7 +33,8 @@
   .field-grid.single { grid-template-columns: 1fr; }
   .field-grid.triple { grid-template-columns: 1fr 1fr 1fr; }
   .field { display: flex; flex-direction: column; gap: 5px; }
-  .field label { font-size: 12px; font-weight: 500; color: var(--text-sec); }
+  .field label { font-size: 12px; font-weight: 600; color: var(--blue); }
+  .req-star { color: #c0392b; font-weight: 700; }
   .field input, .field select, .field textarea { font-family: var(--font); font-size: 13px; padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--text); width: 100%; transition: border-color 0.15s, box-shadow 0.15s; }
   .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(26,79,138,0.1); }
   .field textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
@@ -331,6 +332,13 @@ async function borrar() {
 }
 
 window.addEventListener('load', async () => {
+  // Colorear asteriscos de campos obligatorios en rojo
+  document.querySelectorAll('.field label').forEach(lbl => {
+    if (lbl.textContent.includes('*')) {
+      lbl.innerHTML = lbl.textContent.replace(' *', ' <span class="req-star">*</span>');
+    }
+  });
+
   const params = new URLSearchParams(window.location.search);
   const nro = params.get('nro');
   const depto = params.get('depto') || '';
