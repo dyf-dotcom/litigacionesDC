@@ -31,14 +31,13 @@
   .btn-nueva { padding: 8px 16px; font-family: var(--font); font-size: 13px; font-weight: 500; border: none; border-radius: var(--radius); background: var(--blue); color: white; cursor: pointer; white-space: nowrap; }
   .btn-nueva:hover { background: #153f70; }
   .causas-table-wrap { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
-  .col-header { display: grid; grid-template-columns: 110px 1fr 140px 110px; gap: 10px; padding: 7px 12px; background: var(--bg); border-bottom: 1px solid var(--border); }
+  .col-header { display: grid; grid-template-columns: 110px 1fr 110px; gap: 10px; padding: 7px 12px; background: var(--bg); border-bottom: 1px solid var(--border); }
   .col-header span { font-size: 11px; font-weight: 600; color: var(--text-hint); text-transform: uppercase; letter-spacing: 0.04em; }
   .causas-list { max-height: 480px; overflow-y: auto; }
-  .causa-row { display: grid; grid-template-columns: 110px 1fr 140px 110px; gap: 10px; padding: 7px 12px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.12s; align-items: center; }
+  .causa-row { display: grid; grid-template-columns: 110px 1fr 110px; gap: 10px; padding: 7px 12px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.12s; align-items: center; }
   .causa-row:last-child { border-bottom: none; }
   .causa-row:hover { background: var(--blue-light); }
   .causa-row .nro { font-size: 13px; font-weight: 600; color: var(--blue); font-family: monospace; }
-  .causa-row .caratula { font-size: 12px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .causa-row .depto { font-size: 12px; color: var(--text-sec); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .estado { font-size: 11px; padding: 2px 7px; border-radius: 20px; text-align: center; font-weight: 500; display: inline-block; }
   .estado-instancia { background: var(--blue-light); color: var(--blue); }
@@ -47,7 +46,7 @@
   .causas-loading { padding: 2rem; text-align: center; font-size: 13px; color: var(--text-hint); }
   .card-footer { padding: 0.75rem 1.5rem; border-top: 1px solid var(--border); background: #fafaf8; display: flex; align-items: center; justify-content: space-between; }
   .footer-count { font-size: 12px; color: var(--text-hint); }
-  @media (max-width: 560px) { .col-header, .causa-row { grid-template-columns: 90px 1fr 90px; } .causa-row .depto { display: none; } .col-header span:nth-child(3) { display: none; } body { padding: 1rem; } }
+  @media (max-width: 560px) { .col-header, .causa-row { grid-template-columns: 90px 1fr 90px; } .causa-row .depto { display: none; } .col-header span:nth-child(2) { display: none; } body { padding: 1rem; } }
 </style>
 </head>
 <body>
@@ -62,13 +61,12 @@
   </div>
   <div class="card-body">
     <div class="toolbar">
-      <input type="text" id="buscar" placeholder="Buscar por Nro. de causa o carátula..." oninput="filtrar()">
+      <input type="text" id="buscar" placeholder="Buscar por Nro. de causa..." oninput="filtrar()">
       <button class="btn-nueva" onclick="window.location.href='etapa1_detalle.html?nuevo=1' + (new URLSearchParams(window.location.search).get('depto') ? '&depto=' + encodeURIComponent(new URLSearchParams(window.location.search).get('depto')) : '')">+ Nueva causa</button>
     </div>
     <div class="causas-table-wrap">
       <div class="col-header">
         <span>Nro. Causa</span>
-        <span>Carátula</span>
         <span>Departamento</span>
         <span>Estado</span>
       </div>
@@ -143,7 +141,6 @@ function renderTabla(causas) {
   list.innerHTML = causas.map((c, idx) => `
     <div class="causa-row" onclick="abrirDetalle(${idx})">
       <div class="nro">${c.NroCausa}</div>
-      <div class="caratula" title="${String(c.Caratula||'')}">${String(c.Caratula||'—')}</div>
       <div class="depto">${c.DeptoJudicial||'—'}</div>
       <div><span class="estado ${estadoClass(c.EtapaProceso)}">${c.EtapaProceso||'Instancia'}</span></div>
     </div>
@@ -156,9 +153,8 @@ function filtrar() {
   const filtradas = todasLasCausas.filter(c => {
     // 1) Filtro por departamento (si se entró desde index.html)
     if (deptoQ && String(c.DeptoJudicial||'').toLowerCase().trim() !== deptoQ) return false;
-    // 2) Búsqueda libre por Nro de causa o carátula
-    return String(c.NroCausa||'').toLowerCase().includes(q) ||
-           String(c.Caratula||'').toLowerCase().includes(q);
+    // 2) Búsqueda libre por Nro de causa
+    return String(c.NroCausa||'').toLowerCase().includes(q);
   });
   renderTabla(filtradas);
 }
