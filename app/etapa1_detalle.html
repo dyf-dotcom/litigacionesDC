@@ -127,11 +127,11 @@
     </div>
 
     <div class="field-grid single">
-      <div class="field"><label>Fundamentos de la sentencia Cámara de Apelaciones *</label><textarea id="FundamentoSentencia" placeholder="Describir los fundamentos de la sentencia de la Cámara..."></textarea></div>
+      <div class="field"><label>Fundamentos de la sentencia Cámara de Apelaciones</label><textarea id="FundamentoSentencia" placeholder="Describir los fundamentos de la sentencia de la Cámara..."></textarea></div>
     </div>
     <div class="field-grid single">
       <div class="field">
-        <label>Motivo recurso de apelación</label>
+        <label>Motivo recurso de Casación *</label>
         <select id="MotivoRecursoApelacion">
           <option value="">Seleccionar...</option>
         </select>
@@ -269,7 +269,7 @@ async function cargarCausa(nro) {
 }
 
 async function guardar() {
-  if (!val('IPPPP') || !val('NroCausa') || !val('Defensoria') || !val('DeptoJudicial') || !val('Materia') || !val('Delito') || !val('FundamentoSentencia')) {
+  if (!val('IPPPP') || !val('NroCausa') || !val('Defensoria') || !val('DeptoJudicial') || !val('Materia') || !val('Delito') || !val('MotivoRecursoApelacion')) {
     showAlert('error', 'Completá todos los campos obligatorios (*).'); return;
   }
   const btn = document.getElementById('btn');
