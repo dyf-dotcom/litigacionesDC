@@ -87,7 +87,7 @@
         </select>
       </div>
       <div class="field">
-        <label>Tipo de coerción</label>
+        <label>Tipo de coerción *</label>
         <select id="TipoCoercion">
           <option value="">Seleccionar...</option>
           <option>Detenido</option><option>Prisión preventiva</option><option>Excarcelado</option><option>Morigerado</option><option>Cese</option><option>Libertad Condicional</option>
@@ -96,7 +96,7 @@
     </div>
     <div class="field-grid">
       <div class="field">
-        <label>Cámara de apelación</label>
+        <label>Cámara de apelación *</label>
         <select id="CamaraApelacion">
           <option value="">Seleccionar...</option>
           <option>Sala 1</option><option>Sala 2</option><option>Sala 3</option><option>Sala 4</option>
@@ -112,13 +112,13 @@
     </div>
     <div class="field-grid">
       <div class="field">
-        <label>Motivo de apelación</label>
+        <label>Motivo de apelación *</label>
         <select id="MotivoApelacion">
           <option value="">Seleccionar...</option>
         </select>
       </div>
       <div class="field">
-        <label>Sentencia Cámara</label>
+        <label>Sentencia Cámara *</label>
         <select id="SentenciaCamara">
           <option value="">Seleccionar...</option>
           <option>Favorable</option><option>Desfavorable</option><option>Parcialmente favorable</option>
@@ -269,7 +269,7 @@ async function cargarCausa(nro) {
 }
 
 async function guardar() {
-  if (!val('IPPPP') || !val('NroCausa') || !val('Defensoria') || !val('DeptoJudicial') || !val('Materia') || !val('Delito') || !val('MotivoRecursoApelacion')) {
+  if (!val('IPPPP') || !val('NroCausa') || !val('Defensoria') || !val('DeptoJudicial') || !val('Materia') || !val('Delito') || !val('TipoCoercion') || !val('CamaraApelacion') || !val('MotivoApelacion') || !val('SentenciaCamara') || !val('MotivoRecursoApelacion')) {
     showAlert('error', 'Completá todos los campos obligatorios (*).'); return;
   }
   const btn = document.getElementById('btn');
