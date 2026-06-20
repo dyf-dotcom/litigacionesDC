@@ -201,7 +201,7 @@ window.addEventListener('load', async function() {
   if (depto) {
     deptoActivo = depto; // se filtra por DeptoJudicial, NO se ensucia el buscador
     document.title = 'Etapa 1 — ' + depto;
-    document.getElementById('buscar').placeholder = 'Buscar en ' + depto + ' por Nro. o carátula...';
+    document.getElementById('buscar').placeholder = 'Buscar en ' + depto + ' por Nro. de causa...';
   }
   await cargarCausas(); // cargarCausas() ya llama a filtrar() cuando terminan de cargar los datos
 });
