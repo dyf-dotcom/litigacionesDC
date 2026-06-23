@@ -31,10 +31,10 @@
   .btn-nueva { padding: 8px 16px; font-family: var(--font); font-size: 13px; font-weight: 500; border: none; border-radius: var(--radius); background: var(--blue); color: white; cursor: pointer; white-space: nowrap; }
   .btn-nueva:hover { background: #153f70; }
   .causas-table-wrap { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
-  .col-header { display: grid; grid-template-columns: 110px 1fr 110px; gap: 10px; padding: 7px 12px; background: var(--bg); border-bottom: 1px solid var(--border); }
+  .col-header { display: grid; grid-template-columns: 110px 110px 110px 100px; gap: 10px; padding: 7px 12px; background: var(--bg); border-bottom: 1px solid var(--border); }
   .col-header span { font-size: 11px; font-weight: 600; color: var(--text-hint); text-transform: uppercase; letter-spacing: 0.04em; }
   .causas-list { max-height: 480px; overflow-y: auto; }
-  .causa-row { display: grid; grid-template-columns: 110px 1fr 110px; gap: 10px; padding: 7px 12px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.12s; align-items: center; }
+  .causa-row { display: grid; grid-template-columns: 110px 110px 110px 100px; gap: 10px; padding: 7px 12px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.12s; align-items: center; }
   .causa-row:last-child { border-bottom: none; }
   .causa-row:hover { background: var(--blue-light); }
   .causa-row .nro { font-size: 13px; font-weight: 600; color: var(--blue); font-family: monospace; }
@@ -46,7 +46,7 @@
   .causas-loading { padding: 2rem; text-align: center; font-size: 13px; color: var(--text-hint); }
   .card-footer { padding: 0.75rem 1.5rem; border-top: 1px solid var(--border); background: #fafaf8; display: flex; align-items: center; justify-content: space-between; }
   .footer-count { font-size: 12px; color: var(--text-hint); }
-  @media (max-width: 560px) { .col-header, .causa-row { grid-template-columns: 90px 1fr 90px; } .causa-row .depto { display: none; } .col-header span:nth-child(2) { display: none; } body { padding: 1rem; } }
+  @media (max-width: 560px) { .col-header, .causa-row { grid-template-columns: 90px 90px 90px; } .col-header span:nth-child(3), .causa-row .nro-ejec { display: none; } body { padding: 1rem; } }
 </style>
 </head>
 <body>
@@ -66,8 +66,9 @@
     </div>
     <div class="causas-table-wrap">
       <div class="col-header">
-        <span>Nro. Causa</span>
-        <span>Departamento</span>
+        <span>IPP / PP</span>
+        <span>Crim/Correc</span>
+        <span>Ejecución</span>
         <span>Estado</span>
       </div>
       <div class="causas-list" id="causas-list">
@@ -140,8 +141,9 @@ function renderTabla(causas) {
   }
   list.innerHTML = causas.map((c, idx) => `
     <div class="causa-row" onclick="abrirDetalle(${idx})">
-      <div class="nro">${c.NroCrimCorrec || c.NroEjecucion || c.IPPPP || '—'}</div>
-      <div class="depto">${c.DeptoJudicial||'—'}</div>
+      <div class="nro">${c.IPPPP||'—'}</div>
+      <div class="nro">${c.NroCrimCorrec||'—'}</div>
+      <div class="nro nro-ejec">${c.NroEjecucion||'—'}</div>
       <div><span class="estado ${estadoClass(c.EtapaProceso)}">${c.EtapaProceso||'Instancia'}</span></div>
     </div>
   `).join('');
