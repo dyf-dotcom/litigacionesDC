@@ -31,7 +31,7 @@
   .section-title:first-of-type { margin-top: 0; border-top: none; padding-top: 0; }
   .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
   .field-grid.single { grid-template-columns: 1fr; }
-  .field-grid.triple { grid-template-columns: 1fr 1fr 1fr; }
+  .field-grid.triple { grid-template-columns: 2fr 1fr 1fr; }
   .field { display: flex; flex-direction: column; gap: 5px; }
   .field label { font-size: 12px; font-weight: 600; color: var(--blue); }
   .req-star { color: #c0392b; font-weight: 700; }
@@ -76,11 +76,9 @@
     </div>
     <input type="hidden" id="ID">
     <div class="section-title">Identificación de la causa <span style="font-size:11px;font-weight:400;color:#6b6860">(al menos uno de los tres es obligatorio)</span></div>
-    <div class="field-grid">
+    <div class="field-grid triple">
       <div class="field"><label>IPP / PP</label><input type="text" id="IPPPP" placeholder="N° IPP o PP..."></div>
       <div class="field"><label>Nro. Crim/Correc</label><input type="text" id="NroCrimCorrec" placeholder="Ej: 12345"></div>
-    </div>
-    <div class="field-grid single">
       <div class="field"><label>Nro. Ejecución</label><input type="text" id="NroEjecucion" placeholder="Ej: 67890"></div>
     </div>
     <div class="field-grid">
