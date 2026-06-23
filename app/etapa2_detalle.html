@@ -205,7 +205,7 @@ function setField(id, val) {
 
 async function cargarCausa() {
   const params = new URLSearchParams(window.location.search);
-  const nro = params.get('nro');
+  const nro = params.get('id');
   if (!nro) { window.location.href = 'etapa2_lista.html'; return; }
 
   try {
@@ -221,7 +221,7 @@ async function cargarCausa() {
     const c = data.data;
 
     // Header
-    document.getElementById('header-nro').textContent = 'Causa Nro. ' + c.NroCausa;
+    document.getElementById('header-nro').textContent = 'Causa ' + (c.NroCrimCorrec || c.NroEjecucion || c['IPP/PP'] || 'ID: ' + c.ID);
     document.getElementById('header-caratula').textContent = String(c.Caratula || '');
     const badge = document.getElementById('badge-etapa');
     badge.textContent = c.EtapaProceso || 'Instancia';
@@ -230,7 +230,7 @@ async function cargarCausa() {
     }
 
     // Datos Etapa 1 (solo lectura)
-    setReadonly('NroCausa', c.NroCausa);
+    setReadonly('NroCausa', c.NroCrimCorrec || c.NroEjecucion || c['IPP/PP'] || '');
     setReadonly('Caratula', c.Caratula);
     setReadonly('Defensoria', c.Defensoria);
     setReadonly('DeptoJudicial', c.DeptoJudicial);
@@ -248,8 +248,8 @@ async function cargarCausa() {
     setField('TipoSentenciaCasacion', c.TipoSentenciaCasacion);
     setField('SentenciaCasacion', c.SentenciaCasacion || c['SentenciaCasación']);
 
-    // Guardar NroCausa para el submit
-    window._nroCausa = String(c.NroCausa);
+    // Guardar ID para el submit
+    window._id = String(c.ID);
 
     document.getElementById('loading-card').style.display = 'none';
     document.getElementById('main-card').style.display = 'block';
@@ -266,7 +266,7 @@ async function guardar() {
 
   const params = new URLSearchParams({
     action: 'actualizarEtapa2',
-    NroCausa: window._nroCausa,
+    ID: window._id,
     NroCausaCasacion: val('NroCausaCasacion'),
     SalaTCP: val('SalaTCP'),
     ResponsableTCP: val('ResponsableTCP'),

@@ -31,7 +31,7 @@ function handleRequest(e) {
     if (action === 'buscar')           return buscarCausa(sheet, e.parameter.nro);
     if (action === 'crearEtapa1')      return crearEtapa1(sheet, e.parameter);
     if (action === 'actualizarEtapa1') return actualizarEtapa1(sheet, e.parameter);
-    if (action === 'borrarCausa')      return borrarCausa(sheet, e.parameter.NroCausa);
+    if (action === 'borrarCausa')      return borrarCausa(sheet, e.parameter.ID);
     if (action === 'actualizarEtapa2') return actualizarEtapa2(sheet, e.parameter);
     if (action === 'actualizarEtapa3') return actualizarEtapa3(sheet, e.parameter);
 
@@ -80,10 +80,13 @@ function listarCausas(sheet) {
 
   var causas = [];
   for (var i = 1; i < data.length; i++) {
-    if (!data[i][idx('NroCausa')]) continue;
+    if (!data[i][idx('ID')]) continue;
     if (data[i][idx('Borrado')]) continue; // ignorar filas marcadas como borradas
     causas.push({
-      NroCausa:          data[i][idx('NroCausa')],
+      ID:                String(data[i][idx('ID')]),
+      NroCrimCorrec:     data[i][idx('NroCrimCorrec')] || '',
+      NroEjecucion:      data[i][idx('NroEjecucion')] || '',
+      IPPPP:             data[i][idx('IPP/PP')] || '',
       EtapaProceso:      data[i][idx('EtapaProceso')] || 'Instancia',
       DeptoJudicial:     data[i][idx('DeptoJudicial')],
       Materia:           data[i][idx('Materia')],
@@ -116,12 +119,10 @@ function invalidarCacheCausas() {
 function buscarCausa(sheet, nro) {
   const data = sheet.getDataRange().getValues();
   const headers = data[0];
-  const nroIdx = headers.indexOf('NroCausa');
-  const casIdx = headers.indexOf('NroCausaCasacion');
+  const idIdx = headers.indexOf('ID');
 
   for (var i = 1; i < data.length; i++) {
-    if (String(data[i][nroIdx]) === String(nro) ||
-        String(data[i][casIdx]) === String(nro)) {
+    if (String(data[i][idIdx]) === String(nro)) {
       var row = {};
       headers.forEach(function(h, j) {
         var val = data[i][j];
@@ -148,20 +149,13 @@ function borrarCausa(sheet, nro) {
 }
 
 function crearEtapa1(sheet, p) {
-  // Validar duplicado: mismo NroCausa en el mismo DeptoJudicial
   const data = sheet.getDataRange().getValues();
   const headers = data[0];
-  const nroIdx = headers.indexOf('NroCausa');
-  const deptoIdx = headers.indexOf('DeptoJudicial');
   const idIdx = headers.indexOf('ID');
 
   // Calcular próximo ID auto-incremental
   var maxId = 0;
   for (var i = 1; i < data.length; i++) {
-    if (String(data[i][nroIdx]) === String(p.NroCausa) &&
-        String(data[i][deptoIdx]) === String(p.DeptoJudicial)) {
-      return { ok: false, error: 'La causa ' + p.NroCausa + ' ya existe en ' + p.DeptoJudicial };
-    }
     var idVal = parseInt(data[i][idIdx]);
     if (!isNaN(idVal) && idVal > maxId) maxId = idVal;
   }
@@ -174,7 +168,8 @@ function crearEtapa1(sheet, p) {
     'Defensoria':           p.Defensoria,
     'CamaraApelacion':      p.CamaraApelacion,
     'IPP/PP':               p.IPPPP,
-    'NroCausa':             p.NroCausa,
+    'NroCrimCorrec':        p.NroCrimCorrec,
+    'NroEjecucion':         p.NroEjecucion,
     'Materia':              p.Materia,
     'Delito':               p.Delito,
     'TipoCoercion':         p.TipoCoercion,
@@ -197,7 +192,7 @@ function crearEtapa1(sheet, p) {
 }
 
 function actualizarEtapa1(sheet, p) {
-  const found = buscarCausa(sheet, p.NroCausa);
+  const found = buscarCausa(sheet, p.ID);
   if (!found.ok) return found;
 
   const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
@@ -208,6 +203,8 @@ function actualizarEtapa1(sheet, p) {
     'DeptoJudicial':          p.DeptoJudicial,
     'CamaraApelacion':        p.CamaraApelacion,
     'IPP/PP':                 p.IPPPP,
+    'NroCrimCorrec':          p.NroCrimCorrec,
+    'NroEjecucion':           p.NroEjecucion,
     'Materia':                p.Materia,
     'Delito':                 p.Delito,
     'TipoCoercion':           p.TipoCoercion,
@@ -231,7 +228,7 @@ function actualizarEtapa1(sheet, p) {
 }
 
 function actualizarEtapa2(sheet, p) {
-  const found = buscarCausa(sheet, p.NroCausa);
+  const found = buscarCausa(sheet, p.ID);
   if (!found.ok) return found;
 
   const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];

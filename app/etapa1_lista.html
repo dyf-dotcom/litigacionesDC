@@ -140,7 +140,7 @@ function renderTabla(causas) {
   }
   list.innerHTML = causas.map((c, idx) => `
     <div class="causa-row" onclick="abrirDetalle(${idx})">
-      <div class="nro">${c.NroCausa}</div>
+      <div class="nro">${c.NroCrimCorrec || c.NroEjecucion || c.IPPPP || '—'}</div>
       <div class="depto">${c.DeptoJudicial||'—'}</div>
       <div><span class="estado ${estadoClass(c.EtapaProceso)}">${c.EtapaProceso||'Instancia'}</span></div>
     </div>
@@ -154,7 +154,9 @@ function filtrar() {
     // 1) Filtro por departamento (si se entró desde index.html)
     if (deptoQ && String(c.DeptoJudicial||'').toLowerCase().trim() !== deptoQ) return false;
     // 2) Búsqueda libre por Nro de causa
-    return String(c.NroCausa||'').toLowerCase().includes(q);
+    return String(c.NroCrimCorrec||'').toLowerCase().includes(q) ||
+           String(c.NroEjecucion||'').toLowerCase().includes(q) ||
+           String(c.IPPPP||'').toLowerCase().includes(q);
   });
   renderTabla(filtradas);
 }
@@ -164,7 +166,7 @@ function abrirDetalle(idx) {
   if (!c) return;
   const params = new URLSearchParams(window.location.search);
   const depto = params.get('depto') || '';
-  window.location.href = 'etapa1_detalle.html?nro=' + encodeURIComponent(c.NroCausa) + (depto ? '&depto=' + encodeURIComponent(depto) : '');
+  window.location.href = 'etapa1_detalle.html?id=' + encodeURIComponent(c.ID) + (depto ? '&depto=' + encodeURIComponent(depto) : '');
 }
 
 async function cargarCausas() {
