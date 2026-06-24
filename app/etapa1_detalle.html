@@ -99,14 +99,14 @@
     </div>
     <div class="field-grid">
       <div class="field">
-        <label>Cámara de apelación *</label>
+        <label>Cámara de apelación</label>
         <select id="CamaraApelacion">
           <option value="">Seleccionar...</option>
           <option>Sala 1</option><option>Sala 2</option><option>Sala 3</option><option>Sala 4</option>
         </select>
       </div>
       <div class="field">
-        <label>Materia a litigar *</label>
+        <label>Materia a litigar</label>
         <select id="Materia">
           <option value="">Seleccionar...</option>
           <option>COERCIÓN</option><option>CASACIÓN</option><option>EJECUCIÓN</option>
@@ -115,13 +115,13 @@
     </div>
     <div class="field-grid">
       <div class="field">
-        <label>Motivo de apelación *</label>
+        <label>Motivo de apelación</label>
         <select id="MotivoApelacion">
           <option value="">Seleccionar...</option>
         </select>
       </div>
       <div class="field">
-        <label>Sentencia Cámara *</label>
+        <label>Sentencia Cámara</label>
         <select id="SentenciaCamara">
           <option value="">Seleccionar...</option>
           <option>Favorable</option><option>Desfavorable</option><option>Parcialmente favorable</option>
@@ -134,7 +134,7 @@
     </div>
     <div class="field-grid single">
       <div class="field">
-        <label>Motivo recurso de Casación *</label>
+        <label>Motivo recurso de Casación</label>
         <select id="MotivoRecursoApelacion">
           <option value="">Seleccionar...</option>
         </select>
@@ -277,7 +277,7 @@ async function guardar() {
   if (!val('IPPPP') && !val('NroCrimCorrec') && !val('NroEjecucion')) {
     showAlert('error', 'Ingresá al menos uno: IPP/PP, Nro. Crim/Correc o Nro. Ejecución.'); return;
   }
-  if (!val('Defensoria') || !val('DeptoJudicial') || !val('Materia') || !val('Delito') || !val('TipoCoercion') || !val('CamaraApelacion') || !val('MotivoApelacion') || !val('SentenciaCamara') || !val('MotivoRecursoApelacion')) {
+  if (!val('Defensoria') || !val('DeptoJudicial') || !val('Delito') || !val('TipoCoercion')) {
     showAlert('error', 'Completá todos los campos obligatorios (*).'); return;
   }
   const btn = document.getElementById('btn');
