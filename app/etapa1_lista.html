@@ -62,7 +62,6 @@
   <div class="card-body">
     <div class="toolbar">
       <input type="text" id="buscar" placeholder="Buscar por Nro. de causa..." oninput="filtrar()">
-      <span id="info-sesion" style="font-size:12px;color:var(--text-sec);"></span>
       <button class="btn-nueva" onclick="window.location.href='etapa1_detalle.html?nuevo=1' + (new URLSearchParams(window.location.search).get('depto') ? '&depto=' + encodeURIComponent(new URLSearchParams(window.location.search).get('depto')) : '')">+ Nueva causa</button>
       <button style="padding:8px 12px;font-family:var(--font);font-size:12px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg);color:var(--text-sec);cursor:pointer;" onclick="cerrarSesion()">Salir</button>
     </div>
@@ -80,6 +79,7 @@
   </div>
   <div class="card-footer">
     <span class="footer-count" id="footer-count"></span>
+    <span id="info-sesion" style="font-size:11px;color:var(--text-hint);text-align:center;flex:1;"></span>
   </div>
 </div>
 
