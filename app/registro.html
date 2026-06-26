@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DC-Litigaciones — Registro</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #f4f3ef; --surface: #ffffff; --border: #dddbd4;
+    --text: #1a1917; --text-sec: #6b6860; --text-hint: #9e9b94;
+    --blue: #1a4f8a; --blue-light: #e8eef6;
+    --green: #1a6b4a; --green-light: #e4f0eb;
+    --danger: #8a1a1a; --danger-light: #f6e4e4;
+    --radius: 4px; --radius-lg: 8px;
+    --font: 'IBM Plex Sans', sans-serif;
+  }
+  body { font-family: var(--font); background: var(--bg); color: var(--text); font-size: 14px;
+         min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1.5rem; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+          overflow: hidden; width: 100%; max-width: 420px; }
+  .card-header { padding: 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 14px; }
+  .logo { height: 52px; width: auto; }
+  .header-text .card-title { font-size: 15px; font-weight: 600; }
+  .header-text .card-desc { font-size: 12px; color: var(--text-sec); margin-top: 2px; }
+  .card-body { padding: 1.5rem; display: flex; flex-direction: column; gap: 14px; }
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label { font-size: 12px; font-weight: 600; color: var(--blue); }
+  .field input, .field select { font-family: var(--font); font-size: 13px; padding: 9px 10px;
+    border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface);
+    color: var(--text); width: 100%; }
+  .field input:focus, .field select:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(26,79,138,0.1); }
+  .field select:disabled { background: #f0efe9; color: var(--text-hint); }
+  .hint { font-size: 11px; color: var(--text-hint); }
+  .info-box { background: var(--blue-light); border: 1px solid #b8ccdf; border-radius: var(--radius);
+              padding: 10px 12px; font-size: 12px; color: var(--blue); line-height: 1.5; }
+  .btn-primary { width: 100%; padding: 10px; font-family: var(--font); font-size: 13px; font-weight: 500;
+                 border-radius: var(--radius); cursor: pointer; border: none; background: var(--blue);
+                 color: white; transition: background 0.15s; }
+  .btn-primary:hover { background: #153f70; }
+  .btn-primary:disabled { background: #9eb8d4; cursor: not-allowed; }
+  .alert { display: none; padding: 10px 14px; border-radius: var(--radius); font-size: 13px; border: 1px solid; }
+  .alert-error   { background: var(--danger-light); border-color: #e4a0a0; color: var(--danger); }
+  .alert-success { background: var(--green-light);  border-color: #7ec4a8; color: var(--green); }
+  .card-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--border); background: #fafaf8;
+                 text-align: center; font-size: 12px; color: var(--text-sec); }
+  .card-footer a { color: var(--blue); text-decoration: none; font-weight: 500; }
+  .card-footer a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="card-header">
+    <img src="../assets/logo.png" alt="Logo" class="logo" onerror="this.style.display='none'">
+    <div class="header-text">
+      <div class="card-title">Registro de usuario</div>
+      <div class="card-desc">DC-Litigaciones · Defensoría de Casación PBA</div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="info-box">
+      Registrate una sola vez. Tu usuario quedará asociado a tu Defensoría y solo verás las causas de tu área.
+    </div>
+    <div class="field">
+      <label>Usuario MPBA</label>
+      <input type="text" id="usuario" placeholder="Sin @mpba.gov.ar" autocomplete="username">
+      <span class="hint">Solo tu nombre de usuario, sin @mpba.gov.ar</span>
+    </div>
+    <div class="field">
+      <label>Departamento Judicial</label>
+      <select id="depto" onchange="cargarDefensorias()">
+        <option value="">Cargando...</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Defensoría</label>
+      <select id="defensoria" disabled>
+        <option value="">Seleccioná un departamento primero</option>
+      </select>
+    </div>
+    <div id="alerta" class="alert"></div>
+    <button class="btn-primary" id="btnRegistrar" onclick="registrar()">Registrarme</button>
+  </div>
+  <div class="card-footer">
+    ¿Ya tenés usuario? <a href="login.html">Ingresá aquí</a>
+  </div>
+</div>
+
+<script>
+const API = 'https://script.google.com/macros/s/AKfycbzjHfYffrx41ddmPv75NDxe8g4xB2MZ4U6KWJuVFkIPwgXsbGTN9IfyqygFedLjX3xgGA/exec';
+
+// Cargar departamentos al iniciar
+async function cargarDeptos() {
+  const sel = document.getElementById('depto');
+  try {
+    const res = await fetch(`${API}?action=listarDeptos`);
+    const data = await res.json();
+    if (data.ok) {
+      sel.innerHTML = '<option value="">Seleccionar departamento...</option>';
+      data.deptos.forEach(d => {
+        sel.innerHTML += `<option value="${d.IdDepto}">${d.DepartamentoJudicial}</option>`;
+      });
+    } else {
+      sel.innerHTML = '<option value="">Error al cargar</option>';
+    }
+  } catch(e) {
+    sel.innerHTML = '<option value="">Error de conexión</option>';
+  }
+}
+
+// Cargar defensorías según el departamento seleccionado
+async function cargarDefensorias() {
+  const idDepto = document.getElementById('depto').value;
+  const selDef  = document.getElementById('defensoria');
+
+  if (!idDepto) {
+    selDef.innerHTML = '<option value="">Seleccioná un departamento primero</option>';
+    selDef.disabled = true;
+    return;
+  }
+
+  selDef.disabled = true;
+  selDef.innerHTML = '<option value="">Cargando...</option>';
+
+  try {
+    const res = await fetch(`${API}?action=listarDefensorias&idDepto=${idDepto}`);
+    const data = await res.json();
+    if (data.ok && data.defensorias.length > 0) {
+      selDef.innerHTML = '<option value="">Seleccionar defensoría...</option>';
+      data.defensorias.forEach(d => {
+        selDef.innerHTML += `<option value="${d.IdDef}">${d.Defensoria}</option>`;
+      });
+      selDef.disabled = false;
+    } else {
+      selDef.innerHTML = '<option value="">Sin defensorías para este departamento</option>';
+    }
+  } catch(e) {
+    selDef.innerHTML = '<option value="">Error de conexión</option>';
+  }
+}
+
+function showAlert(tipo, msg) {
+  const a = document.getElementById('alerta');
+  a.className = `alert alert-${tipo}`;
+  a.textContent = msg;
+  a.style.display = 'block';
+}
+
+async function registrar() {
+  const usuario   = document.getElementById('usuario').value.trim();
+  const idDepto   = document.getElementById('depto').value;
+  const idDef     = document.getElementById('defensoria').value;
+  document.getElementById('alerta').style.display = 'none';
+
+  if (!usuario)  { showAlert('error', 'Ingresá tu usuario MPBA.'); return; }
+  if (!idDepto)  { showAlert('error', 'Seleccioná el departamento judicial.'); return; }
+  if (!idDef)    { showAlert('error', 'Seleccioná tu defensoría.'); return; }
+
+  const btn = document.getElementById('btnRegistrar');
+  btn.disabled = true;
+  btn.textContent = 'Registrando...';
+
+  try {
+    const url = `${API}?action=registrarUsuario&Usuario=${encodeURIComponent(usuario)}&IdDef=${idDef}&IdDepto=${idDepto}`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (data.ok) {
+      showAlert('success', 'Usuario registrado. Redirigiendo al ingreso...');
+      setTimeout(() => window.location.href = 'login.html', 2000);
+    } else {
+      showAlert('error', data.error || 'Error al registrar.');
+      btn.disabled = false;
+      btn.textContent = 'Registrarme';
+    }
+  } catch(e) {
+    showAlert('error', 'Error de conexión. Intentá nuevamente.');
+    btn.disabled = false;
+    btn.textContent = 'Registrarme';
+  }
+}
+
+cargarDeptos();
+</script>
+</body>
+</html>

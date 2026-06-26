@@ -80,6 +80,9 @@
 </div>
 
 <script>
+const sesion = JSON.parse(localStorage.getItem('dc_sesion') || 'null');
+if (!sesion) { window.location.href = 'login.html'; }
+
 const API = 'https://script.google.com/macros/s/AKfycbzjHfYffrx41ddmPv75NDxe8g4xB2MZ4U6KWJuVFkIPwgXsbGTN9IfyqygFedLjX3xgGA/exec';
 
 async function cargarListas() {

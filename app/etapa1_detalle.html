@@ -140,12 +140,6 @@
         </select>
       </div>
     </div>
-    <div class="section-title">Fundamentos del recurso de casación</div>
-    <div class="field-grid single">
-      <div class="field"><label>Agravio recurso de casación</label>
-        <textarea id="AgravioRecursoCasacion" placeholder="Describir el agravio del recurso de casación..."></textarea>
-      </div>
-    </div>
     <div class="field-grid single">
       <div class="field"><label>Observaciones</label><textarea id="Observaciones" placeholder="Observaciones..."></textarea></div>
     </div>
@@ -164,6 +158,9 @@
 </div>
 
 <script>
+const sesion = JSON.parse(localStorage.getItem('dc_sesion') || 'null');
+if (!sesion) { window.location.href = 'login.html'; }
+
 const API = 'https://script.google.com/macros/s/AKfycbzjHfYffrx41ddmPv75NDxe8g4xB2MZ4U6KWJuVFkIPwgXsbGTN9IfyqygFedLjX3xgGA/exec';
 
 function poblarSelects(listas) {
@@ -262,7 +259,6 @@ async function cargarCausa(nro) {
     setField('Delito', c.Delito);
     setField('TipoCoercion', c.TipoCoercion);
     setField('FundamentoSentencia', c.FundamentoSentencia);
-    setField('AgravioRecursoCasacion', c.AgravioRecursoCasacion);
     setField('MotivoApelacion', c['MotivoApelacion']);
     setField('MotivoRecursoApelacion', c['MotivoRecursoApelacion']);
     setField('IPPPP', c['IPP/PP'] || c.IPPPP);
@@ -297,7 +293,6 @@ async function guardar() {
     MotivoRecursoApelacion: val('MotivoRecursoApelacion'),
     SentenciaCamara: val('SentenciaCamara'),
     FundamentoSentencia: val('FundamentoSentencia'),
-    AgravioRecursoCasacion: val('AgravioRecursoCasacion'),
     Observaciones: val('Observaciones')
   });
 

@@ -1,5 +1,8 @@
 const SHEET_NAME = 'Causas';
 const LISTAS_NAME = 'Listas';
+const DEPARTAMENTOS_NAME = 'Departamentos';
+const DEFENSORIAS_NAME = 'Defensorias';
+const USUARIOS_NAME = 'Usuarios';
 
 function doGet(e) {
   const result = handleRequest(e);
@@ -21,9 +24,11 @@ function handleRequest(e) {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const sheet = ss.getSheetByName(SHEET_NAME);
 
-    if (action === 'listas') {
-      return listarListas(ss);
-    }
+    if (action === 'listas')            return listarListas(ss);
+    if (action === 'listarDeptos')      return listarDeptos(ss);
+    if (action === 'listarDefensorias') return listarDefensorias(ss, e.parameter.idDepto);
+    if (action === 'registrarUsuario')  return registrarUsuario(ss, e.parameter);
+    if (action === 'loginUsuario')      return loginUsuario(ss, e.parameter);
 
     if (!sheet) return { ok: false, error: 'No se encontró la hoja "Causas"' };
 
@@ -278,4 +283,97 @@ function actualizarEtapa3(sheet, p) {
   });
 
   return { ok: true, mensaje: 'Causa cerrada correctamente' };
+}
+
+// ── DEPARTAMENTOS ──────────────────────────────────────────────
+function listarDeptos(ss) {
+  const sheet = ss.getSheetByName(DEPARTAMENTOS_NAME);
+  if (!sheet) return { ok: false, error: 'Hoja Departamentos no encontrada' };
+  const data = sheet.getDataRange().getValues();
+  var deptos = [];
+  for (var i = 1; i < data.length; i++) {
+    if (!data[i][0]) continue;
+    deptos.push({ IdDepto: data[i][0], DepartamentoJudicial: data[i][1] });
+  }
+  return { ok: true, deptos: deptos };
+}
+
+// ── DEFENSORIAS ────────────────────────────────────────────────
+function listarDefensorias(ss, idDepto) {
+  const sheet = ss.getSheetByName(DEFENSORIAS_NAME);
+  if (!sheet) return { ok: false, error: 'Hoja Defensorias no encontrada' };
+  const data = sheet.getDataRange().getValues();
+  var defs = [];
+  for (var i = 1; i < data.length; i++) {
+    if (!data[i][0]) continue;
+    if (idDepto && String(data[i][1]) !== String(idDepto)) continue;
+    defs.push({ IdDef: data[i][0], IdDepto: data[i][1], Defensoria: data[i][2] });
+  }
+  return { ok: true, defensorias: defs };
+}
+
+// ── USUARIOS ───────────────────────────────────────────────────
+function registrarUsuario(ss, p) {
+  const sheet = ss.getSheetByName(USUARIOS_NAME);
+  if (!sheet) return { ok: false, error: 'Hoja Usuarios no encontrada' };
+
+  const data = sheet.getDataRange().getValues();
+
+  // Verificar si el usuario ya existe (case-insensitive)
+  for (var i = 1; i < data.length; i++) {
+    if (!data[i][0]) continue;
+    if (String(data[i][3]).toLowerCase() === String(p.Usuario).toLowerCase()) {
+      return { ok: false, error: 'El usuario ya existe. Ingresá directamente.' };
+    }
+  }
+
+  // Próximo ID auto-incremental
+  var maxId = 0;
+  for (var i = 1; i < data.length; i++) {
+    var id = parseInt(data[i][0]);
+    if (!isNaN(id) && id > maxId) maxId = id;
+  }
+
+  sheet.appendRow([maxId + 1, parseInt(p.IdDef), parseInt(p.IdDepto), p.Usuario, '123456']);
+  return { ok: true, mensaje: 'Usuario registrado correctamente' };
+}
+
+function loginUsuario(ss, p) {
+  const sheetUsr = ss.getSheetByName(USUARIOS_NAME);
+  const sheetDef = ss.getSheetByName(DEFENSORIAS_NAME);
+  const sheetDep = ss.getSheetByName(DEPARTAMENTOS_NAME);
+  if (!sheetUsr) return { ok: false, error: 'Hoja Usuarios no encontrada' };
+
+  const usuarios = sheetUsr.getDataRange().getValues();
+  for (var i = 1; i < usuarios.length; i++) {
+    if (!usuarios[i][0]) continue;
+    if (String(usuarios[i][3]).toLowerCase() === String(p.Usuario).toLowerCase() &&
+        String(usuarios[i][4]) === String(p.Contrasena)) {
+
+      var idDef   = usuarios[i][1];
+      var idDepto = usuarios[i][2];
+
+      // Buscar nombre de Defensoría
+      var defensoria = '';
+      if (sheetDef) {
+        var defs = sheetDef.getDataRange().getValues();
+        for (var j = 1; j < defs.length; j++) {
+          if (String(defs[j][0]) === String(idDef)) { defensoria = defs[j][2]; break; }
+        }
+      }
+
+      // Buscar nombre de Departamento
+      var deptoJudicial = '';
+      if (sheetDep) {
+        var deps = sheetDep.getDataRange().getValues();
+        for (var k = 1; k < deps.length; k++) {
+          if (String(deps[k][0]) === String(idDepto)) { deptoJudicial = deps[k][1]; break; }
+        }
+      }
+
+      return { ok: true, usuario: usuarios[i][3], idDef: idDef, idDepto: idDepto,
+               defensoria: defensoria, deptoJudicial: deptoJudicial };
+    }
+  }
+  return { ok: false, error: 'Usuario o contraseña incorrectos' };
 }

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DC-Litigaciones — Ingresar</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #f4f3ef; --surface: #ffffff; --border: #dddbd4;
+    --text: #1a1917; --text-sec: #6b6860; --text-hint: #9e9b94;
+    --blue: #1a4f8a; --blue-light: #e8eef6;
+    --green: #1a6b4a; --green-light: #e4f0eb;
+    --danger: #8a1a1a; --danger-light: #f6e4e4;
+    --radius: 4px; --radius-lg: 8px;
+    --font: 'IBM Plex Sans', sans-serif;
+  }
+  body { font-family: var(--font); background: var(--bg); color: var(--text); font-size: 14px;
+         min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1.5rem; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+          overflow: hidden; width: 100%; max-width: 380px; }
+  .card-header { padding: 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 14px; }
+  .logo { height: 52px; width: auto; }
+  .header-text .card-title { font-size: 15px; font-weight: 600; }
+  .header-text .card-desc { font-size: 12px; color: var(--text-sec); margin-top: 2px; }
+  .card-body { padding: 1.5rem; display: flex; flex-direction: column; gap: 14px; }
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label { font-size: 12px; font-weight: 600; color: var(--blue); }
+  .field input { font-family: var(--font); font-size: 13px; padding: 9px 10px; border: 1px solid var(--border);
+                 border-radius: var(--radius); background: var(--surface); color: var(--text); width: 100%; }
+  .field input:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(26,79,138,0.1); }
+  .hint { font-size: 11px; color: var(--text-hint); }
+  .btn-primary { width: 100%; padding: 10px; font-family: var(--font); font-size: 13px; font-weight: 500;
+                 border-radius: var(--radius); cursor: pointer; border: none; background: var(--blue);
+                 color: white; transition: background 0.15s; }
+  .btn-primary:hover { background: #153f70; }
+  .btn-primary:disabled { background: #9eb8d4; cursor: not-allowed; }
+  .alert { display: none; padding: 10px 14px; border-radius: var(--radius); font-size: 13px;
+           border: 1px solid; margin-top: 4px; }
+  .alert-error { background: var(--danger-light); border-color: #e4a0a0; color: var(--danger); }
+  .card-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--border); background: #fafaf8;
+                 text-align: center; font-size: 12px; color: var(--text-sec); }
+  .card-footer a { color: var(--blue); text-decoration: none; font-weight: 500; }
+  .card-footer a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="card-header">
+    <img src="../assets/logo.png" alt="Logo" class="logo" onerror="this.style.display='none'">
+    <div class="header-text">
+      <div class="card-title">DC-Litigaciones</div>
+      <div class="card-desc">Defensoría de Casación PBA</div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="field">
+      <label>Usuario MPBA</label>
+      <input type="text" id="usuario" placeholder="Sin @mpba.gov.ar" autocomplete="username">
+      <span class="hint">Ingresá solo tu nombre de usuario, sin @mpba.gov.ar</span>
+    </div>
+    <div class="field">
+      <label>Contraseña</label>
+      <input type="password" id="contrasena" placeholder="Contraseña" autocomplete="current-password">
+    </div>
+    <div id="alerta" class="alert alert-error"></div>
+    <button class="btn-primary" id="btnIngresar" onclick="ingresar()">Ingresar</button>
+  </div>
+  <div class="card-footer">
+    ¿Primera vez? <a href="registro.html">Registrate aquí</a>
+  </div>
+</div>
+
+<script>
+const API = 'https://script.google.com/macros/s/AKfycbzjHfYffrx41ddmPv75NDxe8g4xB2MZ4U6KWJuVFkIPwgXsbGTN9IfyqygFedLjX3xgGA/exec';
+
+// Si ya hay sesión activa, ir directo a la lista
+if (localStorage.getItem('dc_sesion')) {
+  window.location.href = 'etapa1_lista.html';
+}
+
+document.getElementById('contrasena').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') ingresar();
+});
+document.getElementById('usuario').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') document.getElementById('contrasena').focus();
+});
+
+function showError(msg) {
+  const a = document.getElementById('alerta');
+  a.textContent = msg;
+  a.style.display = 'block';
+}
+
+async function ingresar() {
+  const usuario   = document.getElementById('usuario').value.trim();
+  const contrasena = document.getElementById('contrasena').value.trim();
+  document.getElementById('alerta').style.display = 'none';
+
+  if (!usuario || !contrasena) { showError('Completá usuario y contraseña.'); return; }
+
+  const btn = document.getElementById('btnIngresar');
+  btn.disabled = true;
+  btn.textContent = 'Verificando...';
+
+  try {
+    const url = `${API}?action=loginUsuario&Usuario=${encodeURIComponent(usuario)}&Contrasena=${encodeURIComponent(contrasena)}`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (data.ok) {
+      localStorage.setItem('dc_sesion', JSON.stringify({
+        usuario:       data.usuario,
+        idDef:         data.idDef,
+        idDepto:       data.idDepto,
+        defensoria:    data.defensoria,
+        deptoJudicial: data.deptoJudicial
+      }));
+      window.location.href = 'etapa1_lista.html';
+    } else {
+      showError(data.error || 'Error al ingresar.');
+    }
+  } catch(e) {
+    showError('Error de conexión. Intentá nuevamente.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Ingresar';
+  }
+}
+</script>
+</body>
+</html>
