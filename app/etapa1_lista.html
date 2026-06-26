@@ -88,6 +88,11 @@
 const sesion = JSON.parse(localStorage.getItem('dc_sesion') || 'null');
 if (!sesion) { window.location.href = 'login.html'; }
 
+// Forzar re-login si se vuelve con el botón Atrás después de cerrar sesión
+window.addEventListener('pageshow', function(e) {
+  if (!localStorage.getItem('dc_sesion')) window.location.href = 'login.html';
+});
+
 function cerrarSesion() {
   localStorage.removeItem('dc_sesion');
   sessionStorage.removeItem('causas_cache');
