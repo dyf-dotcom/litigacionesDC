@@ -72,7 +72,7 @@
         <label>Departamento judicial *</label>
         <input type="text" id="DeptoJudicial" readonly style="background:#f4f3ef;cursor:default;">
       </div>
-      <div class="field"><label>Defensoría *</label><input type="text" id="Defensoria" placeholder="Nº / Nombre"></div>
+      <div class="field"><label>Defensoría *</label><input type="text" id="Defensoria" readonly style="background:#f4f3ef;cursor:default;"></div>
     </div>
     <input type="hidden" id="ID">
     <div class="section-title">Identificación de la causa <span style="font-size:11px;font-weight:400;color:#6b6860">(al menos uno de los tres es obligatorio)</span></div>
@@ -359,13 +359,18 @@ window.addEventListener('load', async () => {
 
   await cargarListas();
 
-  // Reafirmar por si cargarListas lo sobreescribió
-  if (depto) {
-    const el = document.getElementById('DeptoJudicial');
-    if (el) el.value = depto;
+  if (nro) {
+    // Modo edición: cargar datos de la causa
+    cargarCausa(nro);
+  } else {
+    // Modo nueva causa: precargar desde sesión
+    if (sesion) {
+      setField('DeptoJudicial', sesion.deptoJudicial);
+      setField('Defensoria', sesion.defensoria);
+    } else if (depto) {
+      setField('DeptoJudicial', depto);
+    }
   }
-
-  if (nro) cargarCausa(nro);
 });
 </script>
 </body>
