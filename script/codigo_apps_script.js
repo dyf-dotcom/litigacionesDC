@@ -286,6 +286,8 @@ function actualizarEtapa3(sheet, p) {
 }
 
 // ── DEPARTAMENTOS ──────────────────────────────────────────────
+// Hoja Departamentos: col A=IdDepto, col B=DepartamentoJudicial, col C=Habilitado (1=activo, 0=inactivo)
+// Para habilitar un depto: poner 1 en la columna C de su fila en Sheets.
 function listarDeptos(ss) {
   const sheet = ss.getSheetByName(DEPARTAMENTOS_NAME);
   if (!sheet) return { ok: false, error: 'Hoja Departamentos no encontrada' };
@@ -293,6 +295,7 @@ function listarDeptos(ss) {
   var deptos = [];
   for (var i = 1; i < data.length; i++) {
     if (!data[i][0]) continue;
+    if (String(data[i][2]) !== '1') continue; // solo habilitados
     deptos.push({ IdDepto: data[i][0], DepartamentoJudicial: data[i][1] });
   }
   return { ok: true, deptos: deptos };

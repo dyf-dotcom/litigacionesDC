@@ -54,6 +54,10 @@
   .alert-error { background: var(--danger-light); border-color: #e4a0a0; color: var(--danger); }
   .loading-msg { padding: 3rem; text-align: center; font-size: 13px; color: var(--text-hint); }
   @media (max-width: 560px) { .field-grid, .field-grid.triple { grid-template-columns: 1fr; } body { padding: 1rem; } }
+  .loader-overlay { display: none; position: fixed; inset: 0; background: rgba(244,243,239,0.8); z-index: 9999; align-items: center; justify-content: center; }
+  .loader-overlay.activo { display: flex; }
+  .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.65s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
@@ -152,6 +156,9 @@ window.addEventListener('pageshow', function() {
 });
 
 const API = 'https://script.google.com/macros/s/AKfycbzjHfYffrx41ddmPv75NDxe8g4xB2MZ4U6KWJuVFkIPwgXsbGTN9IfyqygFedLjX3xgGA/exec';
+
+function showLoader() { document.getElementById('loader').classList.add('activo'); }
+function hideLoader() { document.getElementById('loader').classList.remove('activo'); }
 
 async function cargarListas() {
   try {
@@ -270,6 +277,7 @@ async function guardar() {
   if (!val('NroCausaCasacion')) { showAlert('error', 'Ingresá el Nro. de causa de Casación.'); return; }
   const btn = document.getElementById('btn');
   btn.disabled = true; btn.textContent = 'Guardando...';
+  showLoader();
 
   const params = new URLSearchParams({
     action: 'actualizarEtapa2',
@@ -292,11 +300,22 @@ async function guardar() {
     }
   } catch(e) {
     showAlert('error', 'Error de conexión: ' + e.message);
+  } finally {
+    hideLoader();
+    btn.disabled = false; btn.textContent = 'Guardar casación';
   }
-  btn.disabled = false; btn.textContent = 'Guardar casación';
 }
 
-window.addEventListener('load', async function() { await cargarListas(); cargarCausa(); });
+window.addEventListener('load', async function() {
+  showLoader();
+  try {
+    await cargarListas();
+    await cargarCausa();
+  } finally {
+    hideLoader();
+  }
+});
 </script>
+<div id="loader" class="loader-overlay"><div class="spinner"></div></div>
 </body>
 </html>

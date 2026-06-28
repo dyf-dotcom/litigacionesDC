@@ -47,6 +47,10 @@
                  text-align: center; font-size: 12px; color: var(--text-sec); }
   .card-footer a { color: var(--blue); text-decoration: none; font-weight: 500; }
   .card-footer a:hover { text-decoration: underline; }
+  .loader-overlay { display: none; position: fixed; inset: 0; background: rgba(244,243,239,0.8); z-index: 9999; align-items: center; justify-content: center; }
+  .loader-overlay.activo { display: flex; }
+  .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.65s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
@@ -90,9 +94,13 @@
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbzjHfYffrx41ddmPv75NDxe8g4xB2MZ4U6KWJuVFkIPwgXsbGTN9IfyqygFedLjX3xgGA/exec';
 
+function showLoader() { document.getElementById('loader').classList.add('activo'); }
+function hideLoader() { document.getElementById('loader').classList.remove('activo'); }
+
 // Cargar departamentos al iniciar
 async function cargarDeptos() {
   const sel = document.getElementById('depto');
+  showLoader();
   try {
     const res = await fetch(`${API}?action=listarDeptos`);
     const data = await res.json();
@@ -106,6 +114,8 @@ async function cargarDeptos() {
     }
   } catch(e) {
     sel.innerHTML = '<option value="">Error de conexión</option>';
+  } finally {
+    hideLoader();
   }
 }
 
@@ -122,6 +132,7 @@ async function cargarDefensorias() {
 
   selDef.disabled = true;
   selDef.innerHTML = '<option value="">Cargando...</option>';
+  showLoader();
 
   try {
     const res = await fetch(`${API}?action=listarDefensorias&idDepto=${idDepto}`);
@@ -137,6 +148,8 @@ async function cargarDefensorias() {
     }
   } catch(e) {
     selDef.innerHTML = '<option value="">Error de conexión</option>';
+  } finally {
+    hideLoader();
   }
 }
 
@@ -160,6 +173,7 @@ async function registrar() {
   const btn = document.getElementById('btnRegistrar');
   btn.disabled = true;
   btn.textContent = 'Registrando...';
+  showLoader();
 
   try {
     const url = `${API}?action=registrarUsuario&Usuario=${encodeURIComponent(usuario)}&IdDef=${idDef}&IdDepto=${idDepto}`;
@@ -171,11 +185,11 @@ async function registrar() {
       setTimeout(() => window.location.href = 'login.html', 2000);
     } else {
       showAlert('error', data.error || 'Error al registrar.');
-      btn.disabled = false;
-      btn.textContent = 'Registrarme';
     }
   } catch(e) {
     showAlert('error', 'Error de conexión. Intentá nuevamente.');
+  } finally {
+    hideLoader();
     btn.disabled = false;
     btn.textContent = 'Registrarme';
   }
@@ -183,5 +197,6 @@ async function registrar() {
 
 cargarDeptos();
 </script>
+<div id="loader" class="loader-overlay"><div class="spinner"></div></div>
 </body>
 </html>

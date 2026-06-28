@@ -46,6 +46,10 @@
   .card-footer { padding: 0.75rem 1.5rem; border-top: 1px solid var(--border); background: #fafaf8; display: flex; align-items: center; justify-content: space-between; }
   .footer-count { font-size: 12px; color: var(--text-hint); }
   @media (max-width: 560px) { .col-header, .causa-row { grid-template-columns: 90px 1fr 90px; } .causa-row .depto { display: none; } .col-header span:nth-child(3) { display: none; } body { padding: 1rem; } }
+  .loader-overlay { display: none; position: fixed; inset: 0; background: rgba(244,243,239,0.8); z-index: 9999; align-items: center; justify-content: center; }
+  .loader-overlay.activo { display: flex; }
+  .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.65s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
@@ -88,6 +92,9 @@ window.addEventListener('pageshow', function() {
 });
 
 const API = 'https://script.google.com/macros/s/AKfycbzjHfYffrx41ddmPv75NDxe8g4xB2MZ4U6KWJuVFkIPwgXsbGTN9IfyqygFedLjX3xgGA/exec';
+
+function showLoader() { document.getElementById('loader').classList.add('activo'); }
+function hideLoader() { document.getElementById('loader').classList.remove('activo'); }
 
 async function cargarListas() {
   try {
@@ -185,7 +192,16 @@ async function cargarCausas() {
   }
 }
 
-window.addEventListener('load', async function() { await cargarListas(); cargarCausas(); });
+window.addEventListener('load', async function() {
+  showLoader();
+  try {
+    await cargarListas();
+    await cargarCausas();
+  } finally {
+    hideLoader();
+  }
+});
 </script>
+<div id="loader" class="loader-overlay"><div class="spinner"></div></div>
 </body>
 </html>

@@ -50,6 +50,10 @@
   .alert-error { background: var(--danger-light); border-color: #e4a0a0; color: var(--danger); }
   .loading-msg { padding: 3rem; text-align: center; font-size: 13px; color: var(--text-hint); }
   @media (max-width: 560px) { .field-grid, .field-grid.triple { grid-template-columns: 1fr; } body { padding: 1rem; } }
+  .loader-overlay { display: none; position: fixed; inset: 0; background: rgba(244,243,239,0.8); z-index: 9999; align-items: center; justify-content: center; }
+  .loader-overlay.activo { display: flex; }
+  .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.65s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
@@ -167,6 +171,9 @@ window.addEventListener('pageshow', function() {
 
 const API = 'https://script.google.com/macros/s/AKfycbzjHfYffrx41ddmPv75NDxe8g4xB2MZ4U6KWJuVFkIPwgXsbGTN9IfyqygFedLjX3xgGA/exec';
 
+function showLoader() { document.getElementById('loader').classList.add('activo'); }
+function hideLoader() { document.getElementById('loader').classList.remove('activo'); }
+
 function poblarSelects(listas) {
     // Llenar cada select con su lista correspondiente
     const mapa = {
@@ -282,6 +289,7 @@ async function guardar() {
   }
   const btn = document.getElementById('btn');
   btn.disabled = true; btn.textContent = 'Guardando...';
+  showLoader();
 
   const accion = modoEdicion ? 'actualizarEtapa1' : 'crearEtapa1';
   const params = new URLSearchParams({
@@ -312,9 +320,11 @@ async function guardar() {
     }
   } catch(e) {
     showAlert('error', 'Error de conexión: ' + e.message);
+  } finally {
+    hideLoader();
+    btn.disabled = false;
+    btn.textContent = modoEdicion ? 'Guardar cambios' : 'Registrar causa';
   }
-  btn.disabled = false;
-  btn.textContent = modoEdicion ? 'Guardar cambios' : 'Registrar causa';
 }
 
 async function borrar() {
@@ -322,6 +332,7 @@ async function borrar() {
   const nro = val('ID');
   const btn = document.getElementById('btn-borrar');
   btn.disabled = true; btn.textContent = 'Eliminando...';
+  showLoader();
   try {
     const res = await fetch(`${API}?action=borrarCausa&ID=${encodeURIComponent(nro)}`, { redirect: 'follow' });
     const data = JSON.parse(await res.text());
@@ -331,51 +342,58 @@ async function borrar() {
       setTimeout(() => { window.location.href = 'etapa1_lista.html' + (DEPTO ? '?depto=' + encodeURIComponent(DEPTO) : ''); }, 1500);
     } else {
       showAlert('error', data.error || 'Error al eliminar.');
-      btn.disabled = false; btn.textContent = 'Eliminar causa';
     }
   } catch(e) {
     showAlert('error', 'Error de conexión: ' + e.message);
+  } finally {
+    hideLoader();
     btn.disabled = false; btn.textContent = 'Eliminar causa';
   }
 }
 
 window.addEventListener('load', async () => {
-  // Colorear asteriscos de campos obligatorios en rojo
-  document.querySelectorAll('.field label').forEach(lbl => {
-    if (lbl.textContent.includes('*')) {
-      lbl.innerHTML = lbl.textContent.replace(' *', ' <span class="req-star">*</span>');
+  showLoader();
+  try {
+    // Colorear asteriscos de campos obligatorios en rojo
+    document.querySelectorAll('.field label').forEach(lbl => {
+      if (lbl.textContent.includes('*')) {
+        lbl.innerHTML = lbl.textContent.replace(' *', ' <span class="req-star">*</span>');
+      }
+    });
+
+    const params = new URLSearchParams(window.location.search);
+    const nro = params.get('id');
+    const depto = params.get('depto') || '';
+
+    // Setear botón volver con depto
+    const btnVolver = document.getElementById('btn-volver');
+    if (btnVolver && depto) btnVolver.href = 'etapa1_lista.html?depto=' + encodeURIComponent(depto);
+
+    // Precargar depto inmediatamente
+    if (depto) {
+      const el = document.getElementById('DeptoJudicial');
+      if (el) el.value = depto;
     }
-  });
 
-  const params = new URLSearchParams(window.location.search);
-  const nro = params.get('id');
-  const depto = params.get('depto') || '';
+    await cargarListas();
 
-  // Setear botón volver con depto
-  const btnVolver = document.getElementById('btn-volver');
-  if (btnVolver && depto) btnVolver.href = 'etapa1_lista.html?depto=' + encodeURIComponent(depto);
-
-  // Precargar depto inmediatamente
-  if (depto) {
-    const el = document.getElementById('DeptoJudicial');
-    if (el) el.value = depto;
-  }
-
-  await cargarListas();
-
-  if (nro) {
-    // Modo edición: cargar datos de la causa
-    cargarCausa(nro);
-  } else {
-    // Modo nueva causa: precargar desde sesión
-    if (sesion) {
-      setField('DeptoJudicial', sesion.deptoJudicial);
-      setField('Defensoria', sesion.defensoria);
-    } else if (depto) {
-      setField('DeptoJudicial', depto);
+    if (nro) {
+      // Modo edición: cargar datos de la causa
+      await cargarCausa(nro);
+    } else {
+      // Modo nueva causa: precargar desde sesión
+      if (sesion) {
+        setField('DeptoJudicial', sesion.deptoJudicial);
+        setField('Defensoria', sesion.defensoria);
+      } else if (depto) {
+        setField('DeptoJudicial', depto);
+      }
     }
+  } finally {
+    hideLoader();
   }
 });
 </script>
+<div id="loader" class="loader-overlay"><div class="spinner"></div></div>
 </body>
 </html>
