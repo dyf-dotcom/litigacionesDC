@@ -79,9 +79,10 @@
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbzjHfYffrx41ddmPv75NDxe8g4xB2MZ4U6KWJuVFkIPwgXsbGTN9IfyqygFedLjX3xgGA/exec';
 
-// Si ya hay sesión activa, ir directo a la lista
-if (localStorage.getItem('dc_sesion')) {
-  window.location.href = 'etapa1_lista.html';
+// Si ya hay sesión activa, ir directo a la lista correspondiente
+const _sesionActiva = JSON.parse(localStorage.getItem('dc_sesion') || 'null');
+if (_sesionActiva) {
+  window.location.href = _sesionActiva.deptoJudicial === 'Casación' ? 'etapa2_lista.html' : 'etapa1_lista.html';
 }
 
 document.getElementById('contrasena').addEventListener('keydown', function(e) {
@@ -122,7 +123,7 @@ async function ingresar() {
         defensoria:    data.defensoria,
         deptoJudicial: data.deptoJudicial
       }));
-      window.location.href = 'etapa1_lista.html';
+      window.location.href = data.deptoJudicial === 'Casación' ? 'etapa2_lista.html' : 'etapa1_lista.html';
     } else {
       showError(data.error || 'Error al ingresar.');
     }

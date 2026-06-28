@@ -86,6 +86,7 @@
 <script>
 const sesion = JSON.parse(localStorage.getItem('dc_sesion') || 'null');
 if (!sesion) { window.location.href = 'login.html'; }
+else if (sesion.deptoJudicial !== 'Casación') { window.location.href = 'etapa1_lista.html'; }
 
 window.addEventListener('pageshow', function() {
   if (!localStorage.getItem('dc_sesion')) window.location.href = 'login.html';

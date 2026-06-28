@@ -91,6 +91,7 @@
 // ── Control de sesión ──────────────────────────────────────────
 const sesion = JSON.parse(localStorage.getItem('dc_sesion') || 'null');
 if (!sesion) { window.location.href = 'login.html'; }
+else if (sesion.deptoJudicial === 'Casación') { window.location.href = 'etapa2_lista.html'; }
 
 // Forzar re-login si se vuelve con el botón Atrás después de cerrar sesión
 window.addEventListener('pageshow', function(e) {
