@@ -94,8 +94,8 @@
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbzjHfYffrx41ddmPv75NDxe8g4xB2MZ4U6KWJuVFkIPwgXsbGTN9IfyqygFedLjX3xgGA/exec';
 
-function showLoader() { document.getElementById('loader').classList.add('activo'); }
-function hideLoader() { document.getElementById('loader').classList.remove('activo'); }
+function showLoader() { const el = document.getElementById('loader'); if (el) el.classList.add('activo'); }
+function hideLoader() { const el = document.getElementById('loader'); if (el) el.classList.remove('activo'); }
 
 // Cargar departamentos al iniciar
 async function cargarDeptos() {
@@ -195,7 +195,7 @@ async function registrar() {
   }
 }
 
-cargarDeptos();
+window.addEventListener('load', cargarDeptos);
 </script>
 <div id="loader" class="loader-overlay"><div class="spinner"></div></div>
 </body>
