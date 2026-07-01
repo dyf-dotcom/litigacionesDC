@@ -1,10 +1,12 @@
 Dim icoUrl, icoDir, icoPath, acceso, url
 
-url    = "https://dyf-dotcom.github.io/litigacionesDC/app/login.html"
-icoUrl = "https://raw.githubusercontent.com/dyf-dotcom/litigacionesDC/main/app/logo_dc.ico"
-icoDir = Environ("APPDATA") & "\DCLitigaciones"
+Dim wsh : Set wsh = CreateObject("WScript.Shell")
+
+url     = "https://dyf-dotcom.github.io/litigacionesDC/app/login.html"
+icoUrl  = "https://raw.githubusercontent.com/dyf-dotcom/litigacionesDC/main/app/logo_dc.ico"
+icoDir  = wsh.ExpandEnvironmentStrings("%APPDATA%") & "\DCLitigaciones"
 icoPath = icoDir & "\logo_dc.ico"
-acceso  = Environ("USERPROFILE") & "\Desktop\DC-Litigaciones.lnk"
+acceso  = wsh.ExpandEnvironmentStrings("%USERPROFILE%") & "\Desktop\DC-Litigaciones.lnk"
 
 ' Crear carpeta si no existe
 Dim fso
@@ -31,7 +33,7 @@ On Error GoTo 0
 
 ' Crear acceso directo
 Dim shell, shortcut
-Set shell    = CreateObject("WScript.Shell")
+Set shell    = wsh
 Set shortcut = shell.CreateShortcut(acceso)
 shortcut.TargetPath  = url
 shortcut.Description = "DC-Litigaciones — Defensoría de Casación MPBA"
